@@ -1,0 +1,104 @@
+.container {
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1.3rem 2rem;
+  font-family: var(--inter);
+  font-weight: 600;
+  font-size: 1.5rem;
+  /* text-transform: capitalize; */
+  border-radius: 50px;
+  width: 100%;
+  transition: all 0.2s ease-in-out;
+}
+
+.imgContainer {
+  position: relative;
+  width: 35px;
+  height: 35px;
+}
+
+.img {
+  border: 1px solid var(--white);
+  padding: 3px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.white {
+  background-color: var(--white);
+  color: var(--black);
+}
+
+.white:hover {
+  background-color: var(--gray);
+}
+
+.blue {
+  background-color: var(--blue);
+  color: var(--white);
+}
+
+.blue:hover {
+  background-color: var(--lightBlue);
+}
+
+.noBackgroundWhiteText {
+  background-color: transparent;
+  color: var(--white);
+}
+
+.noBackgroundBlueText {
+  color: var(--white);
+  background-color: var(--blue);
+  padding: 0.5rem 0.8rem;
+  padding-right: 1.4rem;
+}
+
+.noBackgroundBlackText {
+  background-color: transparent;
+  color: var(--black);
+}
+
+.blackOutline {
+  background-color: transparent;
+  color: var(--black);
+  border: 1px solid var(--black);
+}
+
+.arrow {
+  transform: rotate(90deg);
+  font-size: 1.4rem;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  top: 2px;
+}
+
+.noBackgroundBlackText .arrow {
+  color: var(--black);
+}
+
+.noBackgroundBlueText .arrow {
+  color: var(--white);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .container:hover .arrow {
+    transform: rotate(90deg) translateY(-5px);
+  }
+}
+
+@media screen and (max-width: 868px) {
+  .noBackgroundBlueText {
+    border: 1px solid var(--lightBlue);
+  }
+}
