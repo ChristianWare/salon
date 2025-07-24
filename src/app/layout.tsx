@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-
 const bebasNeue = localFont({
   src: "../../public/fonts/BebasNeueProBold.woff2",
   variable: "--bebasNeue",
@@ -15,7 +14,11 @@ const SFUIRegular = localFont({
   display: "swap",
 });
 
-
+const BaskervilleBT = localFont({
+  src: "../../public/fonts/BaskervilleBT.woff2",
+  variable: "--BaskervilleBT",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -29,7 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${bebasNeue.variable} ${SFUIRegular.variable}`}>
+      <body
+        className={`${bebasNeue.variable} ${SFUIRegular.variable} ${BaskervilleBT.variable}`}
+      >
         {children}
       </body>
     </html>
