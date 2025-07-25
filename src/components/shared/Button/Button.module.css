@@ -12,7 +12,7 @@
   justify-content: center;
   gap: 1rem;
   padding: 1.3rem 2rem;
-  font-family: var(--inter);
+  font-family: var(--SFUIMedium);
   font-weight: 600;
   font-size: 1.5rem;
   border-radius: 7px;
@@ -24,6 +24,10 @@
 .orange {
   background-color: var(--orange);
   color: var(--white);
+}
+
+.orange:hover {
+  background-color: var(--lightOrange);
 }
 
 .white {

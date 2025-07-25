@@ -10,15 +10,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
+  gap: 1rem;
   padding: 1.3rem 2rem;
-  font-family: var(--inter);
+  font-family: var(--SFUIMedium);
   font-weight: 600;
   font-size: 1.5rem;
-  /* text-transform: capitalize; */
-  border-radius: 50px;
+  border-radius: 7px;
   width: 100%;
   transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.orange {
+  background-color: var(--orange);
+  color: var(--white);
+}
+
+.orange:hover {
+  background-color: var(--lightOrange);
 }
 
 .white {
@@ -47,6 +56,8 @@
 .noBackgroundBlueText {
   color: var(--white);
   background-color: var(--blue);
+  padding: 0.5rem 0.8rem;
+  padding-right: 1.4rem;
 }
 
 .noBackgroundBlackText {
@@ -61,9 +72,16 @@
 }
 
 .arrow {
-  transform: rotate(90deg);
+  transform: rotate(45deg);
   font-size: 1.4rem;
   transition: all 0.2s ease-in-out;
+  position: relative;
+  top: -1px;
+}
+
+.phone {
+  width: 2rem;
+  height: 2rem;
   position: relative;
   top: 2px;
 }
@@ -76,8 +94,21 @@
   color: var(--white);
 }
 
+.whiteNav {
+  background-color: var(--white);
+  color: var(--black);
+  padding: 0.5rem 1.6rem;
+  /* padding-right: 1.6rem; */
+}
+/* 
 @media (hover: hover) and (pointer: fine) {
   .container:hover .arrow {
     transform: rotate(90deg) translateY(-5px);
   }
 }
+
+@media screen and (max-width: 868px) {
+  .noBackgroundBlueText {
+    border: 1px solid var(--lightBlue);
+  }
+} */
