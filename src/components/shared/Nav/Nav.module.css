@@ -1,26 +1,19 @@
 .header {
   position: relative;
-  width: 100%;
   z-index: 1;
+  margin: 1rem;
 }
 
 .navbar {
+  border-radius: 15px;
+  background-color: var(--blue);
   margin: 0 auto;
-  padding: 2rem 3rem;
+  padding: 1.5rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 2rem;
   width: 100%;
-}
-
-.logoContainer {
-  position: absolute;
-  top: -1px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  pointer-events: auto;
-  width: auto;
 }
 
 .navItems {
@@ -33,12 +26,9 @@
 .navItem {
   text-transform: capitalize;
   font-size: 1.4rem;
-  font-family: var(--inter);
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.5px;
-  color: var(--tan);
+  color: var(--gray);
   z-index: 999;
+  font-family: var(--SFUIMedium);
 }
 
 .black {

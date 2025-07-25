@@ -1,17 +1,10 @@
 :root {
   --black: #2c2c2c;
-  --blackii: #4e4c4c;
-  --text: #6c6868;
-  --textii: #9c9797;
-  --yellow: #fdc600;
-  --blue: #4e94ec;
-  --lightBlue: #86b9fa;
-  --purple: #cea7ff;
-  --pink: #ffa5dc;
-  --green: #0aad62;
-  --white: #fffefa;
-  --tan: #f0efeb;
-  --gray: #d3d1ce;
+  --blue: #0d47a1;
+  --lightBlue: #5c6bc0;
+  --orange: #ff7143;
+  --gray: #edeff1;
+  --white: #ffffff;
 }
 
 * {
@@ -22,7 +15,7 @@
   scroll-behavior: smooth;
   scroll-margin-top: 10px;
   -webkit-tap-highlight-color: transparent;
-  /* font-family: var(--SFUIRegular); */
+  font-family: var(--SFUIRegular);
   overscroll-behavior: none;
 }
 
@@ -61,7 +54,7 @@ span {
 }
 
 h1 {
-  font-size: 118px;
+  font-size: 8rem;
   line-height: 1.2;
   letter-spacing: -2.4px;
   font-weight: 500;
@@ -139,20 +132,14 @@ button {
   background: var(--secondary);
 } */
 
-::selection {
+/* ::selection {
   background: var(--yellow);
   color: var(--black);
 }
 ::-moz-selection {
   background: var(--yellow);
   color: var(--black);
-}
-
-@media screen and (max-width: 1368px) {
-  h1 {
-    font-family: var(--PPNeueMontrealMediumThick);
-  }
-}
+} */
 
 @media screen and (max-width: 968px) {
   html {

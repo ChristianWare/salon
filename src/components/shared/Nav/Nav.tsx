@@ -5,15 +5,15 @@ import styles from "./Nav.module.css";
 import Logo from "../Logo/Logo";
 import Button from "../Button/Button";
 import { MouseEvent, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+// import { useSession } from "next-auth/react";
+// import { useRouter } from "next/navigation";
 
 const navItems = [
   { text: "Home", href: "/" },
-  { text: "About", href: "/about" },
-  { text: "Work", href: "/work" },
-  { text: "Services", href: "/services" },
-  { text: "Contact", href: "/contact" },
+  { text: "services", href: "/" },
+  { text: "Stylists", href: "/" },
+  // { text: "Book Now", href: "/" },
+  { text: "Contact", href: "/" },
 ];
 
 interface Props {
@@ -23,8 +23,7 @@ interface Props {
 
 export default function Nav({ color = "", hamburgerColor = "" }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-    const { data: session, status } = useSession();
-
+  // const { data: session, status } = useSession();
 
   useEffect(() => {
     const body = document.body;
@@ -43,20 +42,23 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
     setIsOpen(!isOpen);
   };
 
-  const router = useRouter();
+  // const router = useRouter();
 
-  const handleAccountClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    setIsOpen(false);
-    if (status === "loading") return; // optional: ignore until known
-    router.push(session ? "/dashboard" : "/login");
-  };
+  // const handleAccountClick = (e: MouseEvent<HTMLAnchorElement>) => {
+  //   e.preventDefault();
+  //   setIsOpen(false);
+  //   if (status === "loading") return;
+  //   router.push(session ? "/dashboard" : "/login");
+  // };
 
   return (
     <header className={styles.header}>
       <nav className={styles.navbar}>
         <div className={styles.logoContainer}>
-          <Logo backgroundColor='backgroundColorWhite' direction='center' />
+          <Logo />
+        </div>
+        <div className={styles.btnContainer}>
+          <Button href='/contact' text='Book now' btnType='whiteNav' arrow />
         </div>
 
         <div
@@ -77,30 +79,30 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
             </Link>
           ))}
 
-          <Link
+          {/* <Link
             href={session ? "/dashboard" : "/login"}
             onClick={handleAccountClick}
             className={`${styles.navItem} ${styles[color]}`}
             prefetch={false} // avoid preloading /dashboard HTML when logged out
           >
             My Account
-          </Link>
-          <div className={styles.btnContainerii}>
+          </Link> */}
+          {/* <div className={styles.btnContainerii}>
             <Button
               href='/contact'
-              text='Book a call with Chris'
+              text='Book Now'
               btnType='noBackgroundBlueText'
               image
+              arrow
             />
-          </div>
+          </div> */}
         </div>
-
         <div className={styles.btnContainer}>
           <Button
             href='/contact'
-            text='Book a call with Chris'
-            btnType='noBackgroundBlueText'
-            image
+            text='(480) 555-5555'
+            btnType='noBackgroundWhiteText'
+            phone
           />
         </div>
 

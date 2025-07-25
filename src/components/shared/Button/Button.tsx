@@ -2,8 +2,8 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import styles from "./Button.module.css";
 import Arrow from "@/components/icons/Arrow/Arrow";
-import Image from "next/image";
-import ChrisImg from "../../../../public/images/chris.jpg";
+import Phone from "@/components/icons/Phone/Phone";
+
 
 interface Props {
   href: string;
@@ -13,7 +13,7 @@ interface Props {
   disabled?: boolean;
   children?: ReactNode;
   arrow?: boolean;
-  image?: boolean;
+  phone?: boolean;
 }
 
 export default function Button({
@@ -24,7 +24,7 @@ export default function Button({
   disabled,
   children,
   arrow,
-  image,
+  phone,
 }: Props) {
   const content = text || children;
 
@@ -35,11 +35,7 @@ export default function Button({
         className={`${styles.btn} ${styles[btnType]}`}
         target={target}
       >
-        {image && (
-          <div className={styles.imgContainer}>
-            <Image src={ChrisImg} alt='' fill className={styles.img} />
-          </div>
-        )}
+        {phone && <Phone className={styles.phone} />}
         {content}
         {arrow && <Arrow className={styles.arrow} />}
       </Link>

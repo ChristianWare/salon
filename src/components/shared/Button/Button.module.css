@@ -10,28 +10,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
+  gap: 1rem;
   padding: 1.3rem 2rem;
   font-family: var(--inter);
   font-weight: 600;
   font-size: 1.5rem;
-  /* text-transform: capitalize; */
-  border-radius: 50px;
+  border-radius: 7px;
   width: 100%;
   transition: all 0.2s ease-in-out;
-}
-
-.imgContainer {
-  position: relative;
-  width: 35px;
-  height: 35px;
-}
-
-.img {
-  border: 1px solid var(--white);
-  padding: 3px;
-  border-radius: 50%;
-  object-fit: cover;
 }
 
 .white {
@@ -76,9 +62,16 @@
 }
 
 .arrow {
-  transform: rotate(90deg);
+  transform: rotate(45deg);
   font-size: 1.4rem;
   transition: all 0.2s ease-in-out;
+  position: relative;
+  top: 2px;
+}
+
+.phone {
+  width: 2rem;
+  height: 2rem;
   position: relative;
   top: 2px;
 }
@@ -89,6 +82,13 @@
 
 .noBackgroundBlueText .arrow {
   color: var(--white);
+}
+
+.whiteNav {
+  background-color: var(--white);
+  color: var(--black);
+  padding: 0.5rem 1.6rem;
+  /* padding-right: 1.6rem; */
 }
 
 @media (hover: hover) and (pointer: fine) {

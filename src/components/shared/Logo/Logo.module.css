@@ -1,81 +1,12 @@
 .logo {
   cursor: pointer;
-  font-family: var(--inter);
+  font-family: var(--bebasNeue);
   z-index: 999;
   font-weight: 600;
-  text-align: center;
-  font-size: 2rem;
-  letter-spacing: -1px;
-  color: var(--black);
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  background-color: var(--tan);
-  padding: 1.6rem 3rem;
-  padding-bottom: 1.8rem;
-  border-top-left-radius: 15px;
-  border-bottom-right-radius: 15px;
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.logo:after {
-  position: absolute;
-  content: "";
-  width: 40px;
-  height: 40px;
-  background-color: transparent;
-  top: 0px;
-  right: -40px;
-  border-top-left-radius: 15px;
-  box-shadow: -1em -1rem var(--tan);
-}
-
-.logo::before {
-  position: absolute;
-  content: "";
-  width: 40px;
-  height: 40px;
-  bottom: -40px;
-  left: 0px;
-  background-color: transparent;
-  border-top-left-radius: 15px;
-  box-shadow: -1em -1rem var(--tan);
-}
-
-.center {
-  position: relative;
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 15px;
-}
-
-.center:after {
-  position: absolute;
-  content: "";
-  width: 40px;
-  height: 40px;
-  background-color: transparent;
-  top: 0px;
-  right: -40px;
-  border-top-left-radius: 15px;
-  box-shadow: -1em -1rem var(--tan);
-}
-
-.center::before {
-  position: absolute;
-  content: "";
-  width: 40px;
-  height: 40px;
-  top: 0px;
-  left: -40px;
-  background-color: transparent;
-  transform: rotate(90deg);
-  border-top-left-radius: 15px;
-  box-shadow: -1em -1rem var(--white);
+  font-size: 3rem;
+  letter-spacing: 1px;
+  color: var(--white);
+  text-transform: uppercase;
 }
 
 .large {
@@ -92,62 +23,6 @@
 
 .blackii {
   color: var(--blackii);
-}
-
-.icon {
-  color: var(--yellow);
-  width: 5rem;
-  height: 5rem;
-}
-
-.backgroundColorWhite {
-  background-color: var(--white);
-}
-
-.logo.backgroundColorWhite::after {
-  box-shadow: -1em -1rem var(--white);
-}
-
-.logo.backgroundColorWhite::before {
-  box-shadow: -1em -1rem var(--white);
-}
-
-.backgroundColorBlack {
-  background-color: var(--black);
-  color: var(--white);
-}
-
-.backgroundColorBlue {
-  background-color: var(--white);
-  color: var(--black);
-}
-
-.logo.backgroundColorBlue::after {
-  box-shadow: -1em -1rem var(--white);
-}
-
-.logo.backgroundColorBlue::before {
-  box-shadow: -1em -1rem var(--white);
-}
-
-.logo.backgroundColorBlack::after {
-  box-shadow: -1em -1rem var(--black);
-}
-
-.logo.backgroundColorBlack::before {
-  box-shadow: -1em -1rem var(--black);
-}
-
-.imgContainer {
-  position: relative;
-  width: 142px;
-  height: 25px;
-  position: relative;
-  /* top: -4px; */
-}
-
-.img {
-  object-fit: cover;
 }
 
 @media screen and (max-width: 568px) {

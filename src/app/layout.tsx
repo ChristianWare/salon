@@ -14,6 +14,12 @@ const SFUIRegular = localFont({
   display: "swap",
 });
 
+const SFUIMedium = localFont({
+  src: "../../public/fonts/SFUIMedium.woff",
+  variable: "--SFUIMedium",
+  display: "swap",
+});
+
 const BaskervilleBT = localFont({
   src: "../../public/fonts/BaskervilleBT.woff2",
   variable: "--BaskervilleBT",
@@ -33,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${bebasNeue.variable} ${SFUIRegular.variable} ${BaskervilleBT.variable}`}
+        className={`${bebasNeue.variable} ${SFUIRegular.variable} ${BaskervilleBT.variable} ${SFUIMedium.variable}`}
       >
         {children}
       </body>
