@@ -72,6 +72,10 @@
 
 .heading {
   color: var(--white);
+  font-size: 8vw;
+  font-weight: 500;
+  letter-spacing: -2.5;
+  line-height: .9;
 }
 
 .bottomCornerContainer {
@@ -194,4 +198,5 @@
   .bottomCorner::after {
     box-shadow: -1em -1rem transparent;
   }
+
 }
