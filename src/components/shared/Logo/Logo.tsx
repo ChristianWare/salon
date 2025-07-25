@@ -19,7 +19,7 @@ const Logo = ({
       href='/'
       className={`${styles.logo} ${styles[size]} ${styles[color]} ${styles[backgroundColor]} ${styles[direction]}`}
     >
-      Salon
+      Dog Salon
     </Link>
   );
 };

@@ -1,20 +1,50 @@
 import Nav from "@/components/shared/Nav/Nav";
 import styles from "./Hero.module.css";
 import LayoutWrapper from "@/components/shared/LayoutWrapper";
+import Image from "next/image";
+import Img1 from "../../../../public/images/hero.jpg";
+import Corner from "@/components/shared/Corner/Corner";
+import Button from "@/components/shared/Button/Button";
 
 export default function Hero() {
   return (
     <section className={styles.container}>
-      <Nav />
-      <div className={styles.content}>
-        <LayoutWrapper>
-          <h1 className={styles.heading}>Full range of dental services</h1>
-          <p className={styles.copy}>
-            We provide comprehensive dental care, from routine check-ups to
-            advanced treatments, ensuring your smile stays healthy and bright.
-          </p>
-        </LayoutWrapper>
-      </div>
+      <LayoutWrapper>
+        <Nav />
+        <div className={styles.content}>
+          <div className={styles.cornerContainer}>
+            <Corner />
+          </div>
+          <div className={styles.top}>
+            <div className={styles.imgContainer}>
+              <Image src={Img1} alt='Hero Image' fill className={styles.img} />
+            </div>
+          </div>
+          <div className={styles.bottom}>
+            <h1 className={styles.heading}>
+              The best way to <br />
+              Pamper Your Pup
+            </h1>
+          </div>
+          <div className={styles.bottomCornerContainer}>
+            <div className={styles.bottomCorner}>
+              <p className={styles.copy}>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Laboriosam, repellendus itaque modi enim ipsum dignissimos dicta
+                aliquam mollitia.
+              </p>
+              <div className={styles.btnContainer}>
+                <Button
+                  btnType='orange'
+                  text='Book a consultation'
+                  href='/'
+                  arrow
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </LayoutWrapper>
     </section>
   );
 }

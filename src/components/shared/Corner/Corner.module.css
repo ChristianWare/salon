@@ -1,0 +1,114 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--gray);
+  padding: 2rem 3rem;
+  padding-left: 1rem;
+  border-top-left-radius: 12px;
+  border-bottom-right-radius: 15px;
+  position: relative;
+  z-index: 1;
+  width: 10%;
+}
+
+.container:after {
+  position: absolute;
+  content: "";
+  width: 40px;
+  height: 40px;
+  background-color: transparent;
+  top: 0px;
+  right: -40px;
+  border-top-left-radius: 15px;
+  box-shadow: -1em -1rem var(--gray);
+}
+
+.container::before {
+  position: absolute;
+  content: "";
+  width: 40px;
+  height: 40px;
+  bottom: -40px;
+  left: 0px;
+  background-color: transparent;
+  border-top-left-radius: 15px;
+  box-shadow: -1em -1rem var(--gray);
+}
+
+.right {
+  border-radius: 0px;
+  border-bottom-left-radius: 15px;
+  position: relative;
+}
+
+.right:after {
+  background-color: transparent;
+  right: auto;
+  left: -40px;
+  /* margin-left: auto; */
+  box-shadow: -1em -1rem var(--gray);
+  transform: rotate(90deg);
+}
+
+.right::before {
+  position: absolute;
+  content: "";
+  width: 40px;
+  height: 40px;
+  right: 0px;
+  left: auto;
+  background-color: transparent;
+  border-top-left-radius: 15px;
+  box-shadow: -1em -1rem var(--gray);
+  transform: rotate(90deg);
+}
+
+.backgroundColorWhite {
+  background-color: var(--white);
+}
+
+.container.backgroundColorWhite::after {
+  box-shadow: -1em -1rem var(--white);
+}
+
+.container.backgroundColorWhite::before {
+  box-shadow: -1em -1rem var(--white);
+}
+
+.backgroundColorBlack {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+.container.backgroundColorBlack::after {
+  box-shadow: -1em -1rem var(--black);
+}
+
+.container.backgroundColorBlack::before {
+  box-shadow: -1em -1rem var(--black);
+}
+
+.backgroundColorTan {
+  background-color: var(--tan);
+  color: var(--white);
+}
+
+.container.backgroundColorTan::after {
+  box-shadow: -1em -1rem var(--tan);
+}
+
+.container.backgroundColorTan::before {
+  box-shadow: -1em -1rem var(--tan);
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 25%;
+  }
+}
+@media screen and (max-width: 568px) {
+  .container {
+    width: 20%;
+  }
+}

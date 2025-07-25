@@ -2,6 +2,7 @@
   position: relative;
   z-index: 1;
   margin: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .navbar {
@@ -194,5 +195,11 @@
 
   .phoneText {
     display: none;
+  }
+}
+
+@media screen and (max-width: 870px) {
+  .header {
+    margin-top: 2.5rem;
   }
 }

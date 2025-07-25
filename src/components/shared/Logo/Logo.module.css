@@ -3,10 +3,12 @@
   font-family: var(--bebasNeue);
   z-index: 999;
   font-weight: 600;
-  font-size: 5rem;
+  font-size: 3rem;
   letter-spacing: 1px;
   color: var(--white);
   text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .large {
@@ -25,10 +27,8 @@
   color: var(--blackii);
 }
 
-/* @media screen and (max-width: 1068px) {
+@media screen and (max-width: 1068px) {
   .logo {
-    font-size: 5rem;
+    font-size: 3.5rem;
   }
-
-
-} */
+}
