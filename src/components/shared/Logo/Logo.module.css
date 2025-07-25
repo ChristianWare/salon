@@ -25,19 +25,10 @@
   color: var(--blackii);
 }
 
-@media screen and (max-width: 568px) {
+@media screen and (max-width: 1068px) {
   .logo {
-    border-bottom-left-radius: 0px;
+    font-size: 5rem;
   }
 
-  .center::before {
-    height: 41px;
-    top: auto;
-    bottom: -40px;
-    left: 0px;
-    background-color: transparent;
-    transform: rotate(0deg);
-    border-top-left-radius: 15px;
-    box-shadow: -1em -1rem var(--white);
-  }
+
 }

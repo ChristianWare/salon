@@ -5,6 +5,7 @@ import styles from "./Nav.module.css";
 import Logo from "../Logo/Logo";
 import Button from "../Button/Button";
 import { MouseEvent, useEffect, useState } from "react";
+import Phone from "@/components/icons/Phone/Phone";
 // import { useSession } from "next-auth/react";
 // import { useRouter } from "next/navigation";
 
@@ -58,9 +59,10 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
           <Logo />
         </div>
         <div className={styles.btnContainer}>
-          <Button href='/contact' text='Book now' btnType='whiteNav' arrow />
+          <div className={styles.btn1}>
+            <Button href='/contact' text='Book now' btnType='whiteNav' arrow />
+          </div>
         </div>
-
         <div
           className={
             isOpen === false
@@ -69,9 +71,9 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
           }
           onClick={openMenu}
         >
-          {navItems.map((item) => (
+          {navItems.map((item, index) => (
             <Link
-              key={item.href}
+              key={index}
               href={item.href}
               className={`${styles.navItem} ${styles[color]}`}
             >
@@ -97,33 +99,34 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
             />
           </div> */}
         </div>
-        <div className={styles.btnContainer}>
-          <Button
-            href='/contact'
-            text='(480) 555-5555'
-            btnType='noBackgroundWhiteText'
-            phone
-          />
+        <div className={styles.btnContainer2}>
+          <button className={styles.btn2}>
+            <Link href='/' className={styles.noBackgroundWhiteText}>
+              <Phone className={styles.phone} />
+              <div className={styles.phoneText}>(480) 555-5555</div>
+            </Link>
+          </button>
         </div>
-
-        <span
-          className={
-            isOpen === false
-              ? styles.hamburger
-              : `${styles.hamburger} ${styles.active}`
-          }
-          onClick={openMenu}
-        >
+        <div className={styles.hamburgerContainer}>
           <span
-            className={`${styles.whiteBar} ${styles[hamburgerColor]}`}
-          ></span>
-          <span
-            className={`${styles.whiteBar} ${styles[hamburgerColor]}`}
-          ></span>
-          <span
-            className={`${styles.whiteBar} ${styles[hamburgerColor]}`}
-          ></span>
-        </span>
+            className={
+              isOpen === false
+                ? styles.hamburger
+                : `${styles.hamburger} ${styles.active}`
+            }
+            onClick={openMenu}
+          >
+            <span
+              className={`${styles.whiteBar} ${styles[hamburgerColor]}`}
+            ></span>
+            <span
+              className={`${styles.whiteBar} ${styles[hamburgerColor]}`}
+            ></span>
+            <span
+              className={`${styles.whiteBar} ${styles[hamburgerColor]}`}
+            ></span>
+          </span>
+        </div>
       </nav>
     </header>
   );

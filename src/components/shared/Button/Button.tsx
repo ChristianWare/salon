@@ -4,7 +4,6 @@ import styles from "./Button.module.css";
 import Arrow from "@/components/icons/Arrow/Arrow";
 import Phone from "@/components/icons/Phone/Phone";
 
-
 interface Props {
   href: string;
   text?: string;
