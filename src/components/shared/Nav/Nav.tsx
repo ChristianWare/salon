@@ -55,14 +55,6 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
   return (
     <header className={styles.header}>
       <nav className={styles.navbar}>
-        <div className={styles.logoContainer}>
-          <Logo />
-        </div>
-        <div className={styles.btnContainer}>
-          <div className={styles.btn1}>
-            <Button href='/contact' text='Book now' btnType='whiteNav' arrow />
-          </div>
-        </div>
         <div
           className={
             isOpen === false
@@ -99,13 +91,19 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
             />
           </div> */}
         </div>
-        <div className={styles.btnContainer2}>
-          <button className={styles.btn2}>
+        <div className={styles.logoContainer}>
+          <Logo />
+        </div>
+        <div className={styles.btnContainer}>
+          <div className={styles.btn1}>
+            <Button href='/contact' text='Book now' btnType='whiteNav' arrow />
+          </div>
+          <div className={styles.btn2}>
             <Link href='/' className={styles.noBackgroundWhiteText}>
               <Phone className={styles.phone} />
               <div className={styles.phoneText}>(480) 555-5555</div>
             </Link>
-          </button>
+          </div>
         </div>
         <div className={styles.hamburgerContainer}>
           <span

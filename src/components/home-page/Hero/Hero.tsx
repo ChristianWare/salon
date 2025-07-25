@@ -9,7 +9,7 @@ export default function Hero() {
       <div className={styles.content}>
         <LayoutWrapper>
           <h1 className={styles.heading}>Full range of dental services</h1>
-          <p className={styles.description}>
+          <p className={styles.copy}>
             We provide comprehensive dental care, from routine check-ups to
             advanced treatments, ensuring your smile stays healthy and bright.
           </p>

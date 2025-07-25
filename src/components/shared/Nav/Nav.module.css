@@ -8,7 +8,7 @@
   border-radius: 15px;
   background-color: var(--blue);
   margin: 0 auto;
-  padding: 0.3rem 2rem;
+  padding: 1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -52,19 +52,14 @@
 }
 
 .noBackgroundWhiteText {
-  position: relative;
-  overflow: hidden;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding: 1.3rem 2rem;
   font-family: var(--inter);
   font-weight: 600;
   font-size: 1.5rem;
-  border-radius: 7px;
   width: 100%;
-  transition: all 0.2s ease-in-out;
   background-color: transparent;
   color: var(--white);
   width: 100%;
@@ -127,16 +122,12 @@
   }
 
   .navItem {
-    color: var(--tan);
+    color: var(--gray);
     font-size: 5vw;
     font-family: var(--PPNeueMontrealMediumThick);
     line-height: 1;
     width: 100%;
     padding: 2rem;
-  }
-
-  .btnContainer {
-    display: none;
   }
 
   .hamburger {
@@ -145,15 +136,17 @@
     z-index: 9999;
   }
 
-  .logoContainer,
-  .btnContainer2 {
+  .logoContainer {
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .btnContainer2 {
+  .btnContainer {
     order: 1;
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
     justify-content: flex-start;
   }
 

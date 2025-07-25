@@ -1,6 +1,6 @@
+import styles from "./Button.module.css";
 import { ReactNode } from "react";
 import Link from "next/link";
-import styles from "./Button.module.css";
 import Arrow from "@/components/icons/Arrow/Arrow";
 import Phone from "@/components/icons/Phone/Phone";
 

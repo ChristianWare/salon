@@ -1,3 +1,19 @@
 .container {
   background-color: var(--gray);
 }
+
+.content {
+  background: #0d47a1;
+  background: linear-gradient(
+    45deg,
+    rgba(13, 71, 161, 1) 50%,
+    rgba(92, 107, 192, 1) 100%
+  );
+  margin: 1rem;
+  border-radius: 15px;
+}
+
+.heading,
+.copy {
+  color: var(--white);
+}
