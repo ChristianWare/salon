@@ -36,7 +36,7 @@ export default function Hero() {
               <div className={styles.btnContainer}>
                 <Button
                   btnType='orange'
-                  text='Book a consultation'
+                  text='Book a spa day'
                   href='/'
                   arrow
                 />
