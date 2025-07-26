@@ -26,7 +26,9 @@ export default function HowItWorks() {
       <LayoutWrapper>
         <div className={styles.container}>
           <div className={styles.top}>
-            <h2 className={styles.heading}>How it works</h2>
+            <h2 className={styles.heading}>
+              How it works <br /> in 4 easy steps
+            </h2>
             <p className={styles.copy}>
               Lorem ipsum, dolor sit amet consectetur adipisicing elit.
               Recusandae sint exercitationem velit consequuntur ad unde est
@@ -37,7 +39,9 @@ export default function HowItWorks() {
             <div className={styles.bottomLeft}>
               {data.map((x) => (
                 <div className={styles.card} key={x.id}>
-                  <h3 className={styles.title}>{x.title}</h3>
+                  <h3 className={styles.title}>
+                    {x.id}. {x.title}
+                  </h3>
                   <p className={styles.desc}>
                     Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui
                     dolorum, ea quidem nihil optio nesciunt.
