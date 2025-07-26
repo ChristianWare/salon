@@ -101,6 +101,13 @@
   /* padding-right: 1.6rem; */
 }
 
+.orangeNav {
+  background-color: var(--orange);
+  color: var(--white);
+  padding: 0.5rem 1.6rem;
+  /* padding-right: 1.6rem; */
+}
+
 .noBackgroundText {
   background-color: transparent;
   color: var(--blue);
