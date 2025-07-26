@@ -16,6 +16,7 @@ export default function Home() {
       <Experts />
       <FeaturedServices />
       <Consultation />
+      <h2>Footer Here</h2>
     </main>
   );
 }
