@@ -1,6 +1,6 @@
 .container {
   background-color: var(--gray);
-  padding: 20rem 0rem;
+  padding: 10rem 0rem;
 }
 
 .introInfo {
@@ -163,31 +163,27 @@
     width: 80%;
   }
 
-    .cbRight {
+  .cbRight {
     display: grid;
     width: 100%;
   }
-
 }
 
-@media screen and (max-width: 768px)  {
-    .dataContainer {
+@media screen and (max-width: 768px) {
+  .dataContainer {
     grid-template-columns: repeat(1, 1fr);
   }
-
 
   .cbRight {
     display: grid;
     width: 50%;
   }
-
 }
 
-@media screen and (max-width: 568px)  {
-    .dataContainer {
+@media screen and (max-width: 568px) {
+  .dataContainer {
     grid-template-columns: repeat(1, 1fr);
   }
-
 
   .cbRight {
     display: grid;
