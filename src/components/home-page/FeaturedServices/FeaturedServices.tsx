@@ -31,21 +31,13 @@ export default function FeaturedServices() {
     <section className={styles.container}>
       <LayoutWrapper>
         <div className={styles.content}>
+          <div className={styles.introInfo}>
+            <SectionIntro title='Popular Services' />
+            <h2 className={styles.heading}>
+              Special Offers <br /> for your Fur baby
+            </h2>
+          </div>
           <div className={styles.dataContainer}>
-            <div className={styles.introInfo}>
-              <SectionIntro title='Popular Services' />
-              <h2 className={styles.heading}>
-                Special Offers <br /> for your Fur baby
-              </h2>
-              <div className={styles.btnContainer}>
-                <Button
-                  btnType='orange'
-                  text='See all Services'
-                  href='/'
-                  arrow
-                />
-              </div>
-            </div>
             {data.map((x) => (
               <div key={x.id} className={styles.card}>
                 <div className={styles.bottomCornerContainer}>
@@ -83,6 +75,9 @@ export default function FeaturedServices() {
                 </div>
               </div>
             ))}
+          </div>
+          <div className={styles.btnContainer}>
+            <Button btnType='orange' text='See all Services' href='/' arrow />
           </div>
         </div>
       </LayoutWrapper>
