@@ -1,4 +1,5 @@
 import AboutUsSection from "@/components/home-page/AboutUsSection/AboutUsSection";
+import Consultation from "@/components/home-page/Consultation/Consultation";
 import Experts from "@/components/home-page/Experts/Experts";
 import FeaturedServices from "@/components/home-page/FeaturedServices/FeaturedServices";
 import Hero from "@/components/home-page/Hero/Hero";
@@ -14,6 +15,7 @@ export default function Home() {
       <WhyChooseUs />
       <Experts />
       <FeaturedServices />
+      <Consultation />
     </main>
   );
 }
