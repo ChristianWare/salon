@@ -1,7 +1,8 @@
 import LayoutWrapper from "@/components/shared/LayoutWrapper";
 import styles from "./HowItWorks.module.css";
 import Image from "next/image";
-import Img1 from "../../../../public/images/service2.png";
+import Img1 from "../../../../public/images/heroiii.jpg";
+import FalseButton from "@/components/shared/FalseButton/FalseButton";
 
 const data = [
   {
@@ -15,7 +16,8 @@ const data = [
   {
     id: 3,
     title: "Drop off, relax, and pick up a fresh pup",
-  },
+  },  
+
 ];
 
 export default function HowItWorks() {
@@ -36,9 +38,15 @@ export default function HowItWorks() {
               {data.map((x) => (
                 <div className={styles.card} key={x.id}>
                   <h3 className={styles.title}>{x.title}</h3>
-                  <p className={styles.desc}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui dolorum, ea quidem nihil optio nesciunt.</p>
+                  <p className={styles.desc}>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui
+                    dolorum, ea quidem nihil optio nesciunt.
+                  </p>
                 </div>
               ))}
+              <div className={styles.btnContainer}>
+                <FalseButton text='Book Now' btnType='orange' />
+              </div>
             </div>
             <div className={styles.bottomRight}>
               <div className={styles.imgContainer}>

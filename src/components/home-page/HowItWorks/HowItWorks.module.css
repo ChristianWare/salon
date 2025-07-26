@@ -32,7 +32,7 @@
   border-radius: 15px;
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  grid-gap: 1rem;
+  grid-gap: 7rem;
 }
 
 .title {
@@ -46,6 +46,18 @@
   width: 90%;
 }
 
+.btnContainer {
+  display: grid;
+  width: 100%;
+}
+
+.bottomRight {
+  padding: 1rem;
+  border: 1px solid var(--blue);
+  border-radius: 15px;
+
+}
+
 .imgContainer {
   position: relative;
   width: 100%;
@@ -55,6 +67,4 @@
 .img {
   object-fit: cover;
   border-radius: 15px;
-  padding: 1rem;
-  border: 1px solid var(--blue);
 }
