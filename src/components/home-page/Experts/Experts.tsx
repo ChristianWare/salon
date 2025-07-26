@@ -2,6 +2,10 @@ import LayoutWrapper from "@/components/shared/LayoutWrapper";
 import styles from "./Experts.module.css";
 import Image from "next/image";
 import Im1 from "../../../../public/images/person.jpg";
+import Im2 from "../../../../public/images/jane.jpg";
+import Im3 from "../../../../public/images/alice.jpg";
+import Im4 from "../../../../public/images/bob.jpg";
+import Im5 from "../../../../public/images/charlie.jpg";
 import SectionIntro from "@/components/shared/SectionIntro/SectionIntro";
 import Button from "@/components/shared/Button/Button";
 import FalseButton from "@/components/shared/FalseButton/FalseButton";
@@ -17,25 +21,25 @@ const data = [
     name: "Jane Smith",
     title: "Lead Specialist",
     description: "Jane specializes in advanced techniques and methodologies.",
-    src: Im1,
+    src: Im2,
   },
   {
     name: "Alice Johnson",
     title: "Technical Advisor",
     description: "Alice provides technical guidance and support.",
-    src: Im1,
+    src: Im3,
   },
   {
     name: "Bob Brown",
     title: "Research Analyst",
     description: "Bob conducts research to improve our services.",
-    src: Im1,
+    src: Im4,
   },
   {
     name: "Charlie White",
     title: "Customer Relations",
     description: "Charlie ensures customer satisfaction and engagement.",
-    src: Im1,
+    src: Im5,
   },
 ];
 

@@ -3,9 +3,9 @@ import styles from "./FeaturedServices.module.css";
 import Button from "@/components/shared/Button/Button";
 import SectionIntro from "@/components/shared/SectionIntro/SectionIntro";
 import Image from "next/image";
-import Img1 from "../../../../public/images/service1.png";
-import Img2 from "../../../../public/images/service2.png";
-import Img3 from "../../../../public/images/service3.png";
+import Img1 from "../../../../public/images/blowout.jpg";
+import Img2 from "../../../../public/images/groom.jpg";
+import Img3 from "../../../../public/images/spa.jpg";
 import FalseButton from "@/components/shared/FalseButton/FalseButton";
 
 const data = [
@@ -13,16 +13,19 @@ const data = [
     id: 1,
     title: "Bath  Blowout",
     price: "From $50",
+    src: Img1
   },
   {
     id: 2,
     title: "Full Grooming",
     price: "From $75",
+    src: Img2
   },
   {
     id: 3,
     title: "Spa Add-Ons",
     price: "From $125",
+    src: Img3
   },
 ];
 
@@ -53,13 +56,21 @@ export default function FeaturedServices() {
                   </div>
                 </div>
                 <div className={styles.cardTop}>
-                  <Image
+                  {/* <Image
                     src={x.id === 1 ? Img1 : x.id === 2 ? Img2 : Img3}
                     alt={x.title}
                     width={200}
                     height={200}
                     className={styles.img}
-                  />
+                  /> */}
+                  <div className={styles.imgContainer}>
+                    <Image
+                      src={x.src}
+                      alt='Hero Image'
+                      fill
+                      className={styles.img}
+                    />
+                  </div>
                 </div>
                 <div className={styles.cardBottom}>
                   <div className={styles.cbLeft}>

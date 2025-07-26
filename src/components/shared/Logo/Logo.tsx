@@ -20,7 +20,7 @@ const Logo = ({
       className={`${styles.logo} ${styles[size]} ${styles[color]} ${styles[backgroundColor]} ${styles[direction]}`}
     >
       {/* Dog Salon */}
-      muchacho
+      Muchacho!
     </Link>
   );
 };
