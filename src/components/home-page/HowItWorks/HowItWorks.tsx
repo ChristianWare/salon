@@ -16,8 +16,8 @@ const data = [
   {
     id: 3,
     title: "Drop off, relax, and pick up a fresh pup",
-  },  
-
+  },
+  { id: 4, title: "Enjoy your time with your pet" },
 ];
 
 export default function HowItWorks() {

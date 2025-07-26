@@ -39,6 +39,8 @@
   font-size: 3rem;
   color: var(--white);
   margin-bottom: 1rem;
+  letter-spacing: .5px;
+  /* font-weight: 500; */
 }
 
 .desc {

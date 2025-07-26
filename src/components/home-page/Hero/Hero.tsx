@@ -41,6 +41,9 @@ export default function Hero() {
                   arrow
                 />
               </div>
+              <div className={styles.hero}>
+                  
+              </div>
             </div>
           </div>
         </div>
