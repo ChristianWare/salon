@@ -13,7 +13,7 @@ import Footer from "@/components/shared/Footer/Footer";
 export default function Home() {
   return (
     <main>
-      {/* <Hero />
+      <Hero />
       <PostHero />
       <ValueProposition />
       <AboutUsSection />
@@ -22,7 +22,7 @@ export default function Home() {
       <FeaturedServices />
       <HowItWorks />
       <Reviews />
-      <Consultation /> */}
+      <Consultation />
       <Footer />
     </main>
   );
