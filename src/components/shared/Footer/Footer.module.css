@@ -1,0 +1,41 @@
+.container {
+  background-color: var(--blue);
+  margin: 1rem;
+  border-radius: 15px;
+}
+
+.top {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5rem;
+}
+
+.heading {
+  text-align: center;
+  color: var(--white);
+  font-size: 10vw;
+  font-weight: 500;
+  letter-spacing: -2.5;
+  line-height: 0.9;
+}
+
+.topCopyBtnContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 2rem;
+  width: 60%;
+}
+
+.copy {
+  color: var(--gray);
+  text-align: right;
+}
+
+.btnContainer {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  width: 100%;
+}
