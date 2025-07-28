@@ -2,11 +2,11 @@
   background-color: var(--blue);
   margin: 1rem;
   border-radius: 15px;
+  padding: 0rem 3rem;
 }
 
 .top {
-  padding: 3rem;
-  padding-top: 5rem;
+  padding: 5rem 3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -39,4 +39,229 @@
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   width: 100%;
+}
+
+.bottom {
+  padding: 5rem 3rem;
+  border-top: 1px solid var(--lightBlue);
+}
+
+.footerContainer {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-gap: 3rem;
+}
+
+.footerLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 3rem;
+}
+
+.workingHoursBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.workingHoursTitle {
+  color: var(--white);
+  font-size: 1.6rem;
+  font-family: var(--SFUIMedium);
+}
+
+.workingHoursList li {
+  color: var(--gray);
+  font-size: 1.4rem;
+  font-family: var(--SFUIRegular);
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
+}
+
+.socialsContainer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.icon {
+  font-size: 3rem;
+  color: var(--gray);
+  cursor: pointer;
+}
+
+.footerRightTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 3rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.sectionTitle {
+  color: var(--white);
+  font-family: var(--SFUIMedium);
+  font-size: 1.6rem;
+  margin-bottom: 2rem;
+}
+
+.workingHoursList,
+.linksList {
+  list-style: none;
+}
+
+.linkItem {
+  margin-bottom: 1rem;
+  color: var(--gray);
+  font-size: 1.4rem;
+  font-family: var(--SFUIRegular);
+  opacity: 0.7;
+}
+
+.footerRightBottom {
+  margin-top: 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.headingiii {
+  color: var(--white);
+  font-size: 8rem;
+  margin-bottom: 1rem;
+}
+
+.small {
+  color: var(--gray);
+}
+
+.fakeInput {
+  margin-top: 2rem;
+  background-color: var(--gray);
+  width: 60%;
+  border-radius: 15px;
+  padding: 2rem;
+}
+
+@media screen and (max-width: 1268px) {
+  .topCopyBtnContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .copy {
+    text-align: center;
+  }
+
+  .btnContainer {
+    width: 60%;
+  }
+}
+
+@media screen and (max-width: 868px) {
+  .footerContainer {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .topCopyBtnContainer {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .copy {
+    width: 100%;
+  }
+
+  .footerLeft {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workingHoursTitle {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .workingHoursBox,
+  .workingHoursList {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btnContainer2 {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .footerRightTop {
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 5rem;
+  }
+
+  .footerRightBottom {
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 568px) {
+  .heading {
+    font-size: 7rem;
+    letter-spacing: -0.5;
+  }
+
+  .icon {
+    font-size: 4rem;
+  }
+
+  .top,
+  .bottom {
+    padding: 3rem 2rem;
+  }
+
+  .btnContainer {
+    width: 100%;
+  }
+
+  .fakeInput {
+    width: 100%;
+  }
+
+  .footerRightTop {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .section:nth-child(2),
+  .section:nth-child(4) {
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+
+  .section:nth-child(2) li,
+  .section:nth-child(4) li {
+    text-align: right;
+  }
 }
