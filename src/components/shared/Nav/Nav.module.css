@@ -113,7 +113,7 @@
     padding: 2rem;
     padding-top: 7rem;
     background: var(--blue);
-    border-radius: 25px;
+    border-radius: 15px;
     transition: right 0.3s ease-in;
     z-index: 1000;
   }
@@ -124,8 +124,9 @@
 
   .navItem {
     color: var(--gray);
-    font-size: 5vw;
-    font-family: var(--PPNeueMontrealMediumThick);
+    font-size: 8vw;
+    font-family: var(--bebasNeue);
+    text-transform: uppercase;
     line-height: 1;
     width: 100%;
     padding: 2rem;

@@ -8,7 +8,7 @@
   border-top-left-radius: 12px;
   border-bottom-right-radius: 15px;
   position: relative;
-  z-index: 1;
+  z-index: -1;
   width: 10%;
 }
 
