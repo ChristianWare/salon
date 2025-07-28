@@ -1,5 +1,6 @@
 import styles from "./Logo.module.css";
 import Link from "next/link";
+import Tail from "@/components/icons/Tail/Tail";
 
 interface Props {
   size?: string;
@@ -20,7 +21,8 @@ const Logo = ({
       className={`${styles.logo} ${styles[size]} ${styles[color]} ${styles[backgroundColor]} ${styles[direction]}`}
     >
       {/* Dog Salon */}
-      Muchacho!
+      <Tail className={styles.tailOne} />
+      Taylored Tails <Tail className={styles.tailTwo} />
     </Link>
   );
 };

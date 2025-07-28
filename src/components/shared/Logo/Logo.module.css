@@ -9,6 +9,10 @@
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .large {
@@ -27,8 +31,25 @@
   color: var(--blackii);
 }
 
+.tailOne {
+  color: var(--white);
+  font-size: 4rem;
+  transform: scaleX(-1);
+}
+
+.tailTwo {
+  color: var(--white);
+  font-size: 4rem;
+}
+
 @media screen and (max-width: 1068px) {
   .logo {
     font-size: 3.5rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .tailOne, .tailTwo {
+    display: none;
   }
 }

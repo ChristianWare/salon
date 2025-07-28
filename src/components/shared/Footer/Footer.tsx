@@ -18,7 +18,10 @@ export default function Footer() {
         </div>
       </div>
       <div className={styles.bottom}>
-        <footer className={styles.container}></footer>
+        <footer className={styles.container}>
+          <div className={styles.footerLeft}></div>
+          <div className={styles.footerRight}></div>
+        </footer>
       </div>
     </div>
   );
