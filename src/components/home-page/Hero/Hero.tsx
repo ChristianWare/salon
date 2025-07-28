@@ -29,21 +29,14 @@ export default function Hero() {
           <div className={styles.bottomCornerContainer}>
             <div className={styles.bottomCorner}>
               <p className={styles.copy}>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Laboriosam, repellendus itaque modi enim ipsum dignissimos dicta
-                aliquam mollitia.
+                Premium dog grooming services tailored to your furry friend&#39;s
+                unique needs. Where every dog leaves looking and feeling their
+                absolute best.
               </p>
               <div className={styles.btnContainer}>
-                <Button
-                  btnType='orange'
-                  text='Book a spa day'
-                  href='/'
-                  arrow
-                />
+                <Button btnType='orange' text='Book a spa day' href='/' arrow />
               </div>
-              <div className={styles.hero}>
-                  
-              </div>
+              <div className={styles.hero}></div>
             </div>
           </div>
         </div>
