@@ -55,9 +55,6 @@ export default function ValueProposition() {
       <LayoutWrapper>
         <div className={styles.content}>
           <div className={styles.left}>
-            <SectionIntro title='Why dog parents love Muchacho' />
-          </div>
-          <div className={styles.right}>
             {data.map((x) => (
               <div
                 key={x.id}
@@ -90,10 +87,13 @@ export default function ValueProposition() {
                 )}
                 <span className={styles.id}>{x.id}</span>
                 <div className={styles.titleDescriptionContiner}>
-                    <span className={styles.title}>{x.title}</span>
+                  <span className={styles.title}>{x.title}</span>
                 </div>
               </div>
             ))}
+          </div>
+          <div className={styles.right}>
+            <SectionIntro title='Stats for you to see about us' />
           </div>
         </div>
       </LayoutWrapper>

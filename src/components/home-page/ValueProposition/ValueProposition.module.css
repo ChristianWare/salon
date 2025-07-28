@@ -1,13 +1,14 @@
 .container {
   background-color: var(--gray);
+  padding: 10rem 0rem;
 }
 
 .content {
   display: grid;
-  grid-template-columns: 2fr 4fr;
+  grid-template-columns: 4fr 2fr;
 }
 
-.right {
+.left {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-gap: 1.5rem;
@@ -105,16 +106,23 @@
   margin-bottom: 0.5rem;
 }
 
+.right {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
 @media screen and (max-width: 1068px) {
   .content {
     grid-template-columns: 1fr;
-    grid-gap: 2rem;
+    grid-gap: 5rem;
   }
 
-  .left {
+  .right {
     display: flex;
     align-items: center;
     justify-content: center;
+    order: -1;
   }
 }
 
@@ -130,15 +138,12 @@
   }
 }
 
-
 @media screen and (max-width: 568px) {
   .card {
     gap: 7rem;
   }
 
-   .videoCard {
-    
+  .videoCard {
     height: 250px;
-    
   }
 }
