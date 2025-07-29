@@ -1,0 +1,31 @@
+/* .form {
+  width: 100%;
+} */
+
+.googleBtn {
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--text);
+  border-radius: 50px;
+  font-size: 1.4rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  transition: all 0.2s ease-in;
+  cursor: pointer;
+}
+
+.googleBtn:hover {
+  background-color: var(--text);
+}
+
+.google {
+  width: 2rem;
+  height: 2rem;
+}
+
+.googleBtnText {
+  text-transform: none;
+  color: var(--tan);
+}
