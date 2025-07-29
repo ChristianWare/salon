@@ -29,9 +29,9 @@ export default function Hero() {
           <div className={styles.bottomCornerContainer}>
             <div className={styles.bottomCorner}>
               <p className={styles.copy}>
-                Premium dog grooming services tailored to your furry friend&#39;s
-                unique needs. Where every dog leaves looking and feeling their
-                absolute best.
+                Premium dog grooming services tailored to your furry
+                friend&#39;s unique needs. Where every dog leaves looking and
+                feeling their absolute best.
               </p>
               <div className={styles.btnContainer}>
                 <Button btnType='orange' text='Book a spa day' href='/' arrow />
