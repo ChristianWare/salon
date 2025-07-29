@@ -1,6 +1,6 @@
+import styles from "./Footer.module.css";
 import Logo from "../Logo/Logo";
 import Button from "../Button/Button";
-import styles from "./Footer.module.css";
 import SectionIntro from "../SectionIntro/SectionIntro";
 import Instagram from "@/components/icons/Instagram/Instagram";
 import Facebook from "@/components/icons/Facebook/Facebook";
@@ -47,67 +47,77 @@ const data = [
 
 export default function Footer() {
   return (
-    <div className={styles.container}>
-      <div className={styles.top}>
-        <h2 className={styles.heading}>Pamper Your Pooch at Tailored Tails</h2>
-        <div className={styles.topCopyBtnContainer}>
-          <p className={styles.copy}>
-            Providing premium dog grooming services with love and expertise
-            since 2015. We&#39;re dedicated to making your furry friend look and
-            feel their best.
-          </p>
-          <div className={styles.btnContainer}>
-            <Button btnType='orange' href='' text='Book a consultation' arrow />
+    <>
+      <div className={styles.container}>
+        <div className={styles.top}>
+          <h2 className={styles.heading}>
+            Pamper Your Pooch at Tailored Tails
+          </h2>
+          <div className={styles.topCopyBtnContainer}>
+            <p className={styles.copy}>
+              Providing premium dog grooming services with love and expertise
+              since 2015. We&#39;re dedicated to making your furry friend look
+              and feel their best.
+            </p>
+            <div className={styles.btnContainer}>
+              <Button
+                btnType='orange'
+                href=''
+                text='Book a consultation'
+                arrow
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <div className={styles.bottom}>
-        <footer className={styles.footerContainer}>
-          <div className={styles.footerLeft}>
-            <Logo />
-            <SectionIntro title='Online Now' />
-            <div className={styles.workingHoursBox}>
-              <span className={styles.workingHoursTitle}>Working Hours</span>
-              <ul className={styles.workingHoursList}>
-                <li>Monday - Friday: 9:00 AM - 6:00 PM</li>
-                <li>Saturday: 10:00 AM - 4:00 PM</li>
-                <li>Sunday: Closed</li>
-              </ul>
-              <div className={styles.btnContainer2}>
-                <Button btnType='white' href='' text='Get directions' arrow />
-              </div>
-              <div className={styles.socialsContainer}>
-                <Instagram className={styles.icon} />
-                <Facebook className={styles.icon} />
-                <LinkedIn className={styles.icon} />
-              </div>
-            </div>
-          </div>
-          <div className={styles.footerRight}>
-            <div className={styles.footerRightTop}>
-              {data.map((x) => (
-                <div key={x.id} className={styles.section}>
-                  <h3 className={styles.sectionTitle}>{x.title}</h3>
-                  <ul className={styles.linksList}>
-                    {x.links.map((link) => (
-                      <li key={link.id} className={styles.linkItem}>
-                        {link.text}
-                      </li>
-                    ))}
-                  </ul>
+        <div className={styles.bottom}>
+          <footer className={styles.footerContainer}>
+            <div className={styles.footerLeft}>
+              <Logo />
+              <SectionIntro title='Online Now' />
+              <div className={styles.workingHoursBox}>
+                <span className={styles.workingHoursTitle}>Working Hours</span>
+                <ul className={styles.workingHoursList}>
+                  <li>Monday - Friday: 9:00 AM - 6:00 PM</li>
+                  <li>Saturday: 10:00 AM - 4:00 PM</li>
+                  <li>Sunday: Closed</li>
+                </ul>
+                <div className={styles.btnContainer2}>
+                  <Button btnType='white' href='' text='Get directions' arrow />
                 </div>
-              ))}
+                <div className={styles.socialsContainer}>
+                  <Instagram className={styles.icon} />
+                  <Facebook className={styles.icon} />
+                  <LinkedIn className={styles.icon} />
+                </div>
+              </div>
             </div>
-            <div className={styles.footerRightBottom}>
-              <h3 className={styles.headingiii}>Join us</h3>
-              <small className={styles.small}>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-              </small>
-              <div className={styles.fakeInput}>E-mail address</div>
+            <div className={styles.footerRight}>
+              <div className={styles.footerRightTop}>
+                {data.map((x) => (
+                  <div key={x.id} className={styles.section}>
+                    <h3 className={styles.sectionTitle}>{x.title}</h3>
+                    <ul className={styles.linksList}>
+                      {x.links.map((link) => (
+                        <li key={link.id} className={styles.linkItem}>
+                          {link.text}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              <div className={styles.footerRightBottom}>
+                <h3 className={styles.headingiii}>Join us</h3>
+                <small className={styles.small}>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                </small>
+                <div className={styles.fakeInput}>E-mail address</div>
+              </div>
             </div>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
-    </div>
+      <br className={styles.br} />
+    </>
   );
 }
