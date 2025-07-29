@@ -85,7 +85,7 @@ export default function LoginForm() {
           <FalseButton
             text={isPending ? "Submitting..." : "Sign In"}
             type='submit'
-            btnType='blue'
+            btnType='orange'
             disabled={isPending}
           />
         </div>

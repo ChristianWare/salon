@@ -5,8 +5,7 @@
 }
 
 .label {
-  color: var(--tan);
-  font-family: var(--PPNeueMontrealMediumThick);
+  color: var(--blue);
   text-transform: capitalize;
 }
 
@@ -17,7 +16,7 @@
 .input {
   padding: 1rem;
   padding-left: 1.5rem;
-  border: 1px solid var(--text);
+  border: 1px solid var(--lightBlue);
   border-radius: 50px;
   font-size: 1.6rem;
   position: relative;

@@ -1,12 +1,10 @@
-/* .form {
-  width: 100%;
-} */
-
 .googleBtn {
   padding: 1rem 1.5rem;
-  border: 1px solid var(--text);
+  border: 1px solid var(--blue);
   border-radius: 50px;
-  font-size: 1.4rem;
+  font-size: 3rem;
+  color: var(--white);
+  text-transform: uppercase;
   width: 100%;
   display: flex;
   align-items: center;
@@ -16,16 +14,21 @@
   cursor: pointer;
 }
 
-.googleBtn:hover {
-  background-color: var(--text);
+.googleBtnText {
+  color: var(--blue);
 }
+
+.googleBtn:hover {
+  background-color: var(--gray);
+  color: var(--white);
+}
+
 
 .google {
-  width: 2rem;
-  height: 2rem;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.googleBtnText {
-  text-transform: none;
-  color: var(--tan);
-}
