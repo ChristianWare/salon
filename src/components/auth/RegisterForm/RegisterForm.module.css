@@ -20,7 +20,7 @@
   left: 0;
   width: 40%;
   height: 1px;
-  background-color: var(--text);
+  background-color: var(--lightBlue);
 }
 
 .or:before {
@@ -30,7 +30,7 @@
   right: 0;
   width: 40%;
   height: 1px;
-  background-color: var(--text);
+  background-color: var(--lightBlue);
 }
 
 .btnContainer {

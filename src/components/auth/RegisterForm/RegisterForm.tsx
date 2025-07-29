@@ -80,7 +80,7 @@ export default function RegisterForm() {
           <FalseButton
             text={isPending ? "Submitting..." : "Register"}
             type='submit'
-            btnType='blue'
+            btnType='orange'
             disabled={isPending}
           />
         </div>
