@@ -1,0 +1,41 @@
+.container {
+  background-color: var(--gray);
+  padding: 10rem 0rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.heading,
+.copy {
+  color: var(--blue);
+  text-align: center;
+}
+
+.imgContainer {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+  aspect-ratio: 1 / 1;
+}
+
+.img {
+  object-fit: cover;
+  border: 1px solid var(--blue);
+  object-position: center;
+  border-radius: 50%;
+  padding: 1rem;
+}
+
+@media screen and (max-width: 1068px) {
+  .btnContainer {
+    display: grid;
+    width: 100%;
+  }
+}

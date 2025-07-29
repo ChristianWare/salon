@@ -9,7 +9,6 @@ import Reviews from "@/components/home-page/Reviews/Reviews";
 import ValueProposition from "@/components/home-page/ValueProposition/ValueProposition";
 import WhyChooseUs from "@/components/home-page/WhyChooseUs/WhyChooseUs";
 
-
 export default function Home() {
   return (
     <main>
