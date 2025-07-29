@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { auth } from "../../auth";
 import { SessionProvider } from "next-auth/react";
+import Footer from "@/components/shared/Footer/Footer";
 
 const bebasNeue = localFont({
   src: "../../public/fonts/BebasNeueProBold.woff2",
@@ -47,6 +48,7 @@ export default async function RootLayout({
           className={`${bebasNeue.variable} ${SFUIRegular.variable} ${BaskervilleBT.variable} ${SFUIMedium.variable}`}
         >
           {children}
+          <Footer />
         </body>
       </html>
     </SessionProvider>

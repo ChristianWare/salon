@@ -8,7 +8,7 @@ import PostHero from "@/components/home-page/PostHero/PostHero";
 import Reviews from "@/components/home-page/Reviews/Reviews";
 import ValueProposition from "@/components/home-page/ValueProposition/ValueProposition";
 import WhyChooseUs from "@/components/home-page/WhyChooseUs/WhyChooseUs";
-import Footer from "@/components/shared/Footer/Footer";
+
 
 export default function Home() {
   return (
@@ -23,7 +23,6 @@ export default function Home() {
       <HowItWorks />
       <Reviews />
       <Consultation />
-      <Footer />
     </main>
   );
 }

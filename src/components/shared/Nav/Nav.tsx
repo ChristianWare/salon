@@ -6,14 +6,13 @@ import Logo from "../Logo/Logo";
 import Button from "../Button/Button";
 import { MouseEvent, useEffect, useState } from "react";
 import Phone from "@/components/icons/Phone/Phone";
-// import { useSession } from "next-auth/react";
-// import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   { text: "Home", href: "/" },
   { text: "services", href: "/" },
-  { text: "Stylists", href: "/" },
-  // { text: "Book Now", href: "/" },
+  { text: "About", href: "/" },
   { text: "Contact", href: "/" },
 ];
 
@@ -24,7 +23,7 @@ interface Props {
 
 export default function Nav({ color = "", hamburgerColor = "" }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  // const { data: session, status } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const body = document.body;
@@ -43,14 +42,14 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
     setIsOpen(!isOpen);
   };
 
-  // const router = useRouter();
+  const router = useRouter();
 
-  // const handleAccountClick = (e: MouseEvent<HTMLAnchorElement>) => {
-  //   e.preventDefault();
-  //   setIsOpen(false);
-  //   if (status === "loading") return;
-  //   router.push(session ? "/dashboard" : "/login");
-  // };
+  const handleAccountClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setIsOpen(false);
+    if (status === "loading") return;
+    router.push(session ? "/dashboard" : "/login");
+  };
 
   return (
     <header className={styles.header}>
@@ -72,21 +71,19 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
               {item.text}
             </Link>
           ))}
-
-          {/* <Link
+          <Link
             href={session ? "/dashboard" : "/login"}
             onClick={handleAccountClick}
             className={`${styles.navItem} ${styles[color]}`}
-            prefetch={false} // avoid preloading /dashboard HTML when logged out
+            prefetch={false}
           >
             My Account
-          </Link> */}
+          </Link>
           {/* <div className={styles.btnContainerii}>
             <Button
               href='/contact'
               text='Book Now'
               btnType='noBackgroundBlueText'
-              image
               arrow
             />
           </div> */}
