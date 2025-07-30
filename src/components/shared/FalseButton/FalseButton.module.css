@@ -15,7 +15,7 @@
   font-family: var(--SFUIMedium);
   font-weight: 600;
   font-size: 1.5rem;
-  border-radius: 7px;
+  border-radius: 50px;
   width: 100%;
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
