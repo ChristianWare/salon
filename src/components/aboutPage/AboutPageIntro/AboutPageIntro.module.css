@@ -50,10 +50,11 @@
 
 .img {
   object-fit: cover;
-  border: 1px solid var(--gray);
+  border: 1px solid var(--blue);
   object-position: center;
   border-radius: 50%;
   padding: 1rem;
+  background-color: lightBlue;
 }
 
 @media screen and (max-width: 1068px) {
