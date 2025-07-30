@@ -95,7 +95,7 @@
   transition: all 0.3s ease-in-out;
 }
 
-@media screen and (max-width: 1068px) {
+@media screen and (max-width: 1168px) {
   .navbar {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -121,7 +121,6 @@
   .navItems.active {
     right: 1rem;
   }
-
 
   .navItem {
     color: var(--gray);

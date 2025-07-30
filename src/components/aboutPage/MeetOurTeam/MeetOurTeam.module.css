@@ -1,0 +1,176 @@
+.container {
+  background-color: var(--gray);
+  padding: 10rem 0rem;
+}
+
+.top {
+  padding: 1rem;
+  border: 1px solid var(--blue);
+  border-radius: 15px;
+}
+
+.imgContainer {
+  position: relative;
+  width: 100%;
+  height: 700px;
+}
+
+.img {
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.imgOverlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 10px;
+  height: 100%;
+  z-index: 2;
+}
+
+.textContainer {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2rem;
+}
+
+.subHeading,
+.copy {
+  color: var(--white);
+}
+
+.copy {
+  width: 50%;
+}
+
+.middle {
+  display: grid;
+  grid-template-columns: 4fr 2fr;
+  grid-gap: 5rem;
+  margin-top: 5rem;
+}
+
+.headingiii {
+  font-size: 8vw;
+}
+
+.headingiii,
+.copyiii {
+  color: var(--blue);
+}
+
+.bottom {
+  margin-top: 10rem;
+}
+
+.mapData {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 2rem;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2rem;
+  background-color: var(--white);
+  width: 100%;
+  padding: 2rem;
+  border-radius: 15px;
+  border: 1px solid var(--lightBlue);
+}
+
+.itemTitle {
+  color: var(--blue);
+  font-size: 3rem;
+}
+
+.itemValue {
+  color: var(--blue);
+}
+
+.bottomRight {
+  margin-left: auto;
+  width: 100%;
+}
+
+.btnContainer {
+  display: grid;
+  width: 40%;
+  margin-left: auto;
+  margin-top: 3rem;
+}
+
+@media screen and (max-width: 1068px) {
+  .copy {
+    width: 80%;
+  }
+
+  .imgContainer {
+    height: 600px;
+  }
+
+  .textContainer {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .subHeading {
+    text-align: center;
+  }
+
+  .copy {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+  }
+
+  .middle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+  }
+
+  .headingiii,
+  .copyiii {
+    text-align: center;
+  }
+
+  .btnContainer {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media screen and (max-width: 568px) {
+  .copy {
+    width: 100%;
+  }
+
+  .imgContainer {
+    height: 400px;
+  }
+
+  .bottom {
+    margin-top: 3rem;
+  }
+
+  .btnContainer {
+    width: 100%;
+  }
+}
