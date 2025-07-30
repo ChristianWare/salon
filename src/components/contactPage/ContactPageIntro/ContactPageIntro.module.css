@@ -1,0 +1,36 @@
+.container {
+  background-color: var(--gray);
+  margin-top: -6rem;
+}
+
+.content {
+  background-color: var(--blue);
+  margin: 1rem;
+  border-radius: 15px;
+  padding: 3rem;
+}
+
+.heading {
+  color: var(--white);
+  margin-bottom: 2rem;
+}
+
+.copy {
+  color: var(--white);
+  width: 375px;
+}
+
+@media screen and (max-width: 1268px) {
+  .heading,
+  .copy {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media screen and (max-width: 568px) {
+  .copy {
+    width: 100%;
+  }
+}
