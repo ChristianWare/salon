@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import LayoutWrapper from "@/components/shared/LayoutWrapper";
 import styles from "./ServicesDetailPageIntro.module.css";
@@ -9,9 +9,11 @@ import { services } from "@/data";
 
 type Service = (typeof services)[number];
 
-
-
-export default function ServicesDetailPageIntro({ service }: { service: Service }) {
+export default function ServicesDetailPageIntro({
+  service,
+}: {
+  service: Service;
+}) {
   return (
     <section className={styles.container}>
       <LayoutWrapper>
@@ -29,9 +31,7 @@ export default function ServicesDetailPageIntro({ service }: { service: Service 
                 className={styles.img}
               />
               <div className={styles.imgOverlay} />
-              <h1 className={styles.heading}>
-                {service.title}
-              </h1>
+              <h1 className={styles.heading}>{service.title}</h1>
             </div>
           </div>
         </div>

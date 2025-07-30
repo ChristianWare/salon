@@ -139,6 +139,10 @@
 }
 
 @media screen and (max-width: 568px) {
+  .left {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .card {
     gap: 7rem;
   }

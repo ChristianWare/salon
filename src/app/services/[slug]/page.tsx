@@ -31,5 +31,9 @@ export default async function Page(
   }
 
   /* pass data to a client component if you need hooks there */
-  return <ServiceDetailsClient service={svc} />;
+  return (
+    <main>
+      <ServiceDetailsClient service={svc} />
+    </main>
+  );
 }

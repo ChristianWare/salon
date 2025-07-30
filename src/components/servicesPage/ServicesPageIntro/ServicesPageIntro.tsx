@@ -42,7 +42,7 @@ export default function ServicesPageIntro() {
             <div className={styles.left}>
               <div className={styles.leftContent}>
                 <h1 className={styles.heading}>
-                  Most popular grooming & spa Services
+                  Most popular <br /> grooming & spa Services
                 </h1>
                 {data.map((x) => (
                   <div key={x.id} className={styles.serviceCard}>

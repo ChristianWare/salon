@@ -115,12 +115,13 @@
     background: var(--blue);
     border-radius: 15px;
     transition: right 0.3s ease-in;
-    z-index: 1000;
+    z-index: 3000; /* Increased z-index to ensure nav menu is on top */
   }
 
   .navItems.active {
     right: 1rem;
   }
+
 
   .navItem {
     color: var(--gray);
@@ -202,5 +203,17 @@
 @media screen and (max-width: 870px) {
   .header {
     margin-top: 2.5rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .btnContainer {
+    display: none;
   }
 }

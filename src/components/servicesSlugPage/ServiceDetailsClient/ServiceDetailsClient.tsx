@@ -14,6 +14,9 @@ export default function ServiceDetailsClient({
   return (
     <main>
       <ServicesDetailPageIntro service={service} />
+      <h3 style={{ textAlign: "center", margin: "2rem", color: "var(--blue)" }}>
+        More details coming soon!
+      </h3>
     </main>
   );
 }
