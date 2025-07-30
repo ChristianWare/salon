@@ -12,8 +12,8 @@ import { useRouter } from "next/navigation";
 const navItems = [
   { text: "Home", href: "/" },
   { text: "services", href: "/services" },
-  { text: "About", href: "/" },
-  { text: "Contact", href: "/" },
+  { text: "About", href: "/about" },
+  { text: "Contact", href: "/contact" },
 ];
 
 interface Props {
