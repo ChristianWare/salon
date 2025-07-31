@@ -12,8 +12,6 @@
   gap: 2rem;
 }
 
-
-
 .heading {
   color: var(--blue);
 }
@@ -36,13 +34,15 @@
   width: 50%;
 }
 
-
-
-
 @media screen and (max-width: 1068px) {
   .content {
-    grid-template-columns: 1fr;
-    grid-gap: 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
   }
 
   .heading,

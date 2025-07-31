@@ -17,7 +17,6 @@
   flex: 1;
 }
 
-/* Hamburger (hidden on large) */
 .hamburgerContainer {
   display: none;
 }
@@ -61,6 +60,20 @@
   gap: 2rem;
   padding: 2rem;
   transition: max-height 0.3s ease, opacity 0.3s ease;
+  position: relative;
+}
+
+.linksWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.closeWrapper {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: none;
 }
 
 .navLink {
@@ -74,8 +87,8 @@
   text-decoration: none;
 }
 
-/* Buttons at bottom */
-.btnContainer {
+.btnContainer,
+.btnContainerii {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   gap: 1rem;
@@ -83,10 +96,23 @@
   padding: 1rem;
 }
 
-/* Responsive behavior */
+.btnContainerii {
+  display: none;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1500;
+}
+
 @media screen and (max-width: 1068px) {
   .container {
     min-height: auto;
+    width: fit-content;
+    padding: 2rem;
+    border-radius: 8px;
   }
 
   .hamburgerContainer {
@@ -99,7 +125,15 @@
     display: block;
   }
 
-  /* Hide nav links by default on small screens */
+  .closeWrapper {
+    display: block;
+  }
+
+
+  .linksWrapper {
+    gap: 5rem;
+  }
+
   .navLinks {
     position: fixed;
     top: 0;
@@ -107,7 +141,7 @@
     bottom: 0;
     left: 0;
     background: var(--white);
-    padding-top: 5rem;
+    padding-top: 10rem;
     padding-left: 2rem;
     padding-right: 2rem;
     gap: 2.5rem;
@@ -116,12 +150,26 @@
     opacity: 0;
     pointer-events: none;
     z-index: 2000;
+    justify-content: space-between;
   }
 
-  /* When open */
   .navLinks.open {
     max-height: 100vh;
     opacity: 1;
     pointer-events: auto;
+    width: 60%;
+  }
+
+  .btnContainer {
+    display: none;
+  }
+
+  .btnContainerii {
+    display: grid;
+    padding: 0;
+    margin-top: auto;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+    width: 100%;
   }
 }

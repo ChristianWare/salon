@@ -12,6 +12,7 @@ import Listing from "@/components/icons/Listing/Listing";
 import UserButton from "@/components/dashboard/UserButton/UserButton";
 import Button from "@/components/shared/Button/Button";
 import { useState } from "react";
+import FalseButton from "@/components/shared/FalseButton/FalseButton";
 
 const NAV_ITEMS = [
   { title: "Dashboard", href: "/admin", icon: <House /> },
@@ -49,23 +50,48 @@ export default function AdminSideNav() {
           </button>
         </div>
 
+        {/* overlay */}
+        {isOpen && (
+          <div className={styles.overlay} onClick={() => setIsOpen(false)} />
+        )}
+
         <ul
           className={
             isOpen ? `${styles.navLinks} ${styles.open}` : styles.navLinks
           }
         >
-          {NAV_ITEMS.map(({ title, href, icon }) => (
-            <li key={href}>
-              <Link
-                href={href}
-                className={styles.navLink}
-                onClick={() => setIsOpen(false)}
-              >
-                {icon}
-                {title}
-              </Link>
-            </li>
-          ))}
+          <div className={styles.closeWrapper}>
+            <FalseButton
+              text='Close'
+              btnType='blue'
+              onClick={() => setIsOpen(false)}
+            />
+          </div>
+
+          <div className={styles.linksWrapper}>
+            {NAV_ITEMS.map(({ title, href, icon }) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className={styles.navLink}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {icon}
+                  {title}
+                </Link>
+              </li>
+            ))}
+          </div>
+
+          <div className={styles.btnContainerii}>
+            <UserButton />
+            <Button btnType='blue' text='Go Home' href='/' />
+            <Button
+              btnType='blueOutline'
+              text='User Dashboard'
+              href='/dashboard'
+            />
+          </div>
         </ul>
 
         <div className={styles.btnContainer}>
@@ -80,4 +106,5 @@ export default function AdminSideNav() {
       </nav>
     </aside>
   );
+
 }
