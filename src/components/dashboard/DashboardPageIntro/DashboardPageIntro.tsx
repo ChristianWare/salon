@@ -9,6 +9,10 @@ import Dog from "@/components/icons/Dog/Dog";
 export default async function DashboardPageIntro() {
   const session = await auth();
 
+  // if (session.user.role === "ADMIN") {
+  //   redirect("/admin");
+  // }
+
   return (
     <section className={styles.container}>
       <LayoutWrapper>
@@ -26,6 +30,15 @@ export default async function DashboardPageIntro() {
               <UserButton />
               <Button btnType='white' text='Go Home' href='/' />
             </div>
+              <div className={styles.adminBtnContainer}>
+                {session?.user?.role === "ADMIN" && (
+                  <Button
+                    btnType='whiteOutline'
+                    text='Admin Panel'
+                    href='/admin'
+                  />
+                )}
+              </div>
           </div>
           <div className={styles.right}>
             <div className={styles.dogContainer}>

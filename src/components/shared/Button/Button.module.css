@@ -19,6 +19,7 @@
   width: 100%;
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
+  
 }
 
 .orange {
@@ -71,6 +72,28 @@
   border: 1px solid var(--black);
 }
 
+.whiteOutline {
+  background-color: transparent;
+  color: var(--white);
+  border: 1px solid var(--white);
+}
+
+.whiteOutline:hover {
+  background-color: var(--white);
+  color: var(--blue);
+}
+
+.blueOutline {
+  background-color: transparent;
+  color: var(--blue);
+  border: 1px solid var(--blue);
+}
+
+.blueOutline:hover {
+  background-color: var(--blue);
+  color: var(--white);
+}
+
 .arrow {
   transform: rotate(45deg);
   font-size: 1.4rem;
@@ -114,7 +137,6 @@
   padding: 0rem;
   padding-right: 1.4rem;
   font-weight: 400;
-  
 }
 /* 
 @media (hover: hover) and (pointer: fine) {

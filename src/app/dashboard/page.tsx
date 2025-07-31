@@ -6,12 +6,11 @@ import DashboardPageIntro from "@/components/dashboard/DashboardPageIntro/Dashbo
 export default async function DashboardPage() {
   const session = await auth();
 
-  console.log(session);
   if (!session) redirect("/login");
 
-  if (session.user.role === "ADMIN") {
-    redirect("/admin");
-  }
+  // if (session.user.role === "ADMIN") {
+  //   redirect("/admin");
+  // }
   return (
     <main>
       <DashboardPageIntro />

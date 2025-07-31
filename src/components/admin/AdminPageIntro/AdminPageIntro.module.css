@@ -37,6 +37,12 @@
   width: 50%;
 }
 
+.adminBtnContainer {
+  width: 100%;
+  display: grid;
+  width: 50%;
+}
+
 /* .dogContainer {
   width: 20rem;
   height: 20rem;
@@ -72,6 +78,11 @@
     margin-right: auto;
     margin-top: 1rem;
   }
+
+  .adminBtnContainer {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -85,7 +96,8 @@
     width: 100%;
   }
 
-  .btnContainer {
+  .btnContainer,
+  .adminBtnContainer {
     width: 100%;
     grid-template-columns: 1fr;
   }

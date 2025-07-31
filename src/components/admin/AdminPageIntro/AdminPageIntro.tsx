@@ -30,6 +30,13 @@ export default async function AdminPageIntro() {
               <UserButton />
               <Button btnType='blue' text='Go Home' href='/' />
             </div>
+            <div className={styles.adminBtnContainer}>
+              <Button
+                btnType='blueOutline'
+                text='User Dashboard'
+                href='/dashboard'
+              />
+            </div>
           </div>
         </div>
       </LayoutWrapper>
