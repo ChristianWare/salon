@@ -1,7 +1,7 @@
 export default function BookingPage() {
   return (
     <div>
-        <h1>Booking Page</h1>
+      <h1>Bookings Page</h1>
     </div>
-  )
+  );
 }

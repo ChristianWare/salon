@@ -1,5 +1,5 @@
 import { requireAdmin } from "./lib/rbac";
-import AdminPageIntro from "@/components/admin/AdminPageIntro/AdminPageIntro";
+// import AdminPageIntro from "@/components/admin/AdminPageIntro/AdminPageIntro";
 // import SideNav
 
 export default async function AdminLayout({
@@ -11,7 +11,6 @@ export default async function AdminLayout({
   return (
     <>
       <main >
-        <AdminPageIntro />
         {children}
       </main>
     </>

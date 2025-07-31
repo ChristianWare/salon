@@ -23,8 +23,8 @@ export default async function AdminPageIntro() {
               Admin Dashboard
             </h1>{" "}
             <p className={styles.copy}>
-              Welcome to your dashboard! Here you can manage your account, view
-              your bookings, and access other features.
+              Welcome to the admin dashboard! Here you can manage bookings,
+              groomers, services, customers, and more.
             </p>
             <div className={styles.btnContainer}>
               <UserButton />
