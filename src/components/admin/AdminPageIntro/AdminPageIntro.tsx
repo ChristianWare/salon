@@ -4,7 +4,7 @@ import Nav from "@/components/shared/Nav/Nav";
 import { auth } from "../../../../auth";
 import UserButton from "@/components/dashboard/UserButton/UserButton";
 import Button from "@/components/shared/Button/Button";
-import Dog from "@/components/icons/Dog/Dog";
+import AdminSideNav from "../AdminSideNav/AdminSideNav";
 
 export default async function AdminPageIntro() {
   const session = await auth();
@@ -15,6 +15,9 @@ export default async function AdminPageIntro() {
         <Nav />
         <div className={styles.content}>
           <div className={styles.left}>
+            <AdminSideNav />
+          </div>
+          <div className={styles.right}>
             <h1 className={styles.heading}>
               {session?.user?.name}&lsquo;s <br />
               Admin Dashboard
@@ -26,11 +29,6 @@ export default async function AdminPageIntro() {
             <div className={styles.btnContainer}>
               <UserButton />
               <Button btnType='blue' text='Go Home' href='/' />
-            </div>
-          </div>
-          <div className={styles.right}>
-            <div className={styles.dogContainer}>
-              <Dog className={styles.dog} />
             </div>
           </div>
         </div>

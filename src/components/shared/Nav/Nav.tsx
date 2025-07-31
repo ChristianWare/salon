@@ -48,7 +48,13 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
     e.preventDefault();
     setIsOpen(false);
     if (status === "loading") return;
-    router.push(session ? "/dashboard" : "/login");
+    if (!session) {
+      router.push("/login");
+    } else if (session.user?.role === "ADMIN") {
+      router.push("/admin");
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   return (

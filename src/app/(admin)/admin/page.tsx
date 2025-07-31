@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
 import { auth } from "../../../../auth";
-import AdminPageIntro from "@/components/admin/AdminPageIntro/AdminPageIntro";
 
 export default async function AdminPage() {
   const session = await auth();
   if (!session) redirect("/login");
   return (
-    <main>
-      <AdminPageIntro />
-    </main>
+    <div>
+      <p>Admin overview here</p>
+
+    </div>
   );
 }

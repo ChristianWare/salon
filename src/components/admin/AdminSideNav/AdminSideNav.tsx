@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-// import styles from './AdminSideNav.module.css'
+import styles from "./AdminSideNav.module.css";
 import { usePathname } from "next/navigation";
 import {
   Home,
   Calendar,
   Users,
   Tag,
-//   PresentationChartLine,
+  //   PresentationChartLine,
   Settings,
   ClipboardList,
 } from "lucide-react";
-import Link from 'next/link';
+import Link from "next/link";
 
 const NAV_ITEMS = [
   { title: "Dashboard", href: "/admin", icon: Home },
@@ -25,14 +25,12 @@ const NAV_ITEMS = [
   { title: "Audit Log", href: "/admin/audit", icon: ClipboardList },
 ];
 
-
 export default function AdminSideNav() {
-      const pathname = usePathname();
+  const pathname = usePathname();
 
   return (
-    <aside className='w-60 h-screen bg-white border-r'>
-      <div className='px-6 py-4 text-2xl font-bold'>Admin</div>
-      <nav className='px-4'>
+    <aside className={styles.container}>
+      <nav>
         <ul>
           {NAV_ITEMS.map(({ title, href, icon: Icon }) => {
             const isActive =

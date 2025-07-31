@@ -1,0 +1,9 @@
+.container {
+  background-color: var(--white);
+  padding: 2rem;
+  border-radius: 15px;
+}
+
+.container li {
+  list-style: none;
+}

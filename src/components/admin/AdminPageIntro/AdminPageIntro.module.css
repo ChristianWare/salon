@@ -4,16 +4,16 @@
 }
 
 .content {
-  background-color: var(--white);
+  /* background-color: var(--white); */
   margin: 1rem;
   border-radius: 15px;
-  padding: 3rem;
+  padding: 3rem 0rem;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr 5fr;
   grid-gap: 3rem;
 }
 
-.left {
+.right {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -35,12 +35,6 @@
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 2rem;
   width: 50%;
-}
-
-.right {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* .dogContainer {
