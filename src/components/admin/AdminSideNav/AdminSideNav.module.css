@@ -1,9 +1,57 @@
 .container {
+  display: flex;
+  flex-direction: column;
   background-color: var(--white);
-  padding: 2rem;
   border-radius: 15px;
-  min-height: 90vh;
+  min-height: 90.5vh;
   border: 1px solid var(--lightBlue);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 3rem;
+  height: 100%;
+  flex: 1;
+}
+
+/* Hamburger (hidden on large) */
+.hamburgerContainer {
+  display: none;
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  z-index: 999;
+}
+
+.whiteBar {
+  display: block;
+  width: 55px;
+  height: 3px;
+  margin: 5px auto;
+  border-radius: 15px;
+  background-color: var(--blue);
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.hamburger.active .whiteBar:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.active .whiteBar:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active .whiteBar:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
 }
 
 .navLinks {
@@ -11,6 +59,8 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  padding: 2rem;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
 }
 
 .navLink {
@@ -18,7 +68,60 @@
   align-items: center;
   justify-content: flex-start;
   gap: 2rem;
-  font-size: 2.5rem;
+  font-size: 1.6rem;
   font-family: var(--SFUIMedium);
   color: var(--black);
+  text-decoration: none;
+}
+
+/* Buttons at bottom */
+.btnContainer {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem;
+}
+
+/* Responsive behavior */
+@media screen and (max-width: 1068px) {
+  .container {
+    min-height: auto;
+  }
+
+  .hamburgerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  /* Hide nav links by default on small screens */
+  .navLinks {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: var(--white);
+    padding-top: 5rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    gap: 2.5rem;
+    overflow-y: auto;
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2000;
+  }
+
+  /* When open */
+  .navLinks.open {
+    max-height: 100vh;
+    opacity: 1;
+    pointer-events: auto;
+  }
 }

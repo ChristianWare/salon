@@ -2,7 +2,6 @@
 
 import styles from "./AdminSideNav.module.css";
 import Link from "next/link";
-// import { usePathname } from "next/navigation";
 import Calendar from "@/components/icons/Calendar/Calendar";
 import House from "@/components/icons/House/House";
 import Employee from "@/components/icons/Employee/Employee";
@@ -10,6 +9,9 @@ import Cog from "@/components/icons/Cog/Cog";
 import Users from "@/components/icons/Users/Users";
 import Report from "@/components/icons/Report/Report";
 import Listing from "@/components/icons/Listing/Listing";
+import UserButton from "@/components/dashboard/UserButton/UserButton";
+import Button from "@/components/shared/Button/Button";
+import { useState } from "react";
 
 const NAV_ITEMS = [
   { title: "Dashboard", href: "/admin", icon: <House /> },
@@ -22,21 +24,59 @@ const NAV_ITEMS = [
 ];
 
 export default function AdminSideNav() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const openMenu = () => {
+    setIsOpen((o) => !o);
+  };
+
   return (
     <aside className={styles.container}>
-      <nav>
-        <ul className={styles.navLinks}>
-          {NAV_ITEMS.map(({ title, href, icon }) => {
-            return (
-              <li key={href}>
-                <Link href={href} className={styles.navLink}>
-                 {icon}
-                  {title}
-                </Link>
-              </li>
-            );
-          })}
+      <nav className={styles.nav}>
+        <div className={styles.hamburgerContainer}>
+          <button
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
+            className={
+              isOpen ? `${styles.hamburger} ${styles.active}` : styles.hamburger
+            }
+            onClick={openMenu}
+            type='button'
+          >
+            <span className={styles.whiteBar} />
+            <span className={styles.whiteBar} />
+            <span className={styles.whiteBar} />
+          </button>
+        </div>
+
+        <ul
+          className={
+            isOpen ? `${styles.navLinks} ${styles.open}` : styles.navLinks
+          }
+        >
+          {NAV_ITEMS.map(({ title, href, icon }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className={styles.navLink}
+                onClick={() => setIsOpen(false)}
+              >
+                {icon}
+                {title}
+              </Link>
+            </li>
+          ))}
         </ul>
+
+        <div className={styles.btnContainer}>
+          <UserButton />
+          <Button btnType='blue' text='Go Home' href='/' />
+          <Button
+            btnType='blueOutline'
+            text='User Dashboard'
+            href='/dashboard'
+          />
+        </div>
       </nav>
     </aside>
   );

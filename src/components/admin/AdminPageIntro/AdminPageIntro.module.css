@@ -39,7 +39,7 @@
 
 
 
-@media screen and (max-width: 1268px) {
+@media screen and (max-width: 1068px) {
   .content {
     grid-template-columns: 1fr;
     grid-gap: 5rem;
