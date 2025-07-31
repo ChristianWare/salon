@@ -1,12 +1,12 @@
-import styles from "./DashboardPageIntro.module.css";
 import LayoutWrapper from "@/components/shared/LayoutWrapper";
-import { auth } from "../../../../auth";
-import UserButton from "../UserButton/UserButton";
+import styles from "./AdminPageIntro.module.css";
 import Nav from "@/components/shared/Nav/Nav";
+import { auth } from "../../../../auth";
+import UserButton from "@/components/dashboard/UserButton/UserButton";
 import Button from "@/components/shared/Button/Button";
 import Dog from "@/components/icons/Dog/Dog";
 
-export default async function DashboardPageIntro() {
+export default async function AdminPageIntro() {
   const session = await auth();
 
   return (
@@ -16,7 +16,8 @@ export default async function DashboardPageIntro() {
         <div className={styles.content}>
           <div className={styles.left}>
             <h1 className={styles.heading}>
-              {session?.user?.name}&lsquo;s <br /> Dashboard
+              {session?.user?.name}&lsquo;s <br />
+              Admin Dashboard
             </h1>{" "}
             <p className={styles.copy}>
               Welcome to your dashboard! Here you can manage your account, view
@@ -24,7 +25,7 @@ export default async function DashboardPageIntro() {
             </p>
             <div className={styles.btnContainer}>
               <UserButton />
-              <Button btnType='white' text='Go Home' href='/' />
+              <Button btnType='blue' text='Go Home' href='/' />
             </div>
           </div>
           <div className={styles.right}>

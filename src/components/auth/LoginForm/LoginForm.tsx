@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import styles from "./LoginForm.module.css";
@@ -13,6 +14,7 @@ import { login } from "../../../../actions/auth/login";
 import Alert from "@/components/shared/Alert/Alert";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LOGIN_REDIRECT } from "../../../../routes";
+import { signIn, getSession } from "next-auth/react";
 
 export default function LoginForm() {
   const {
@@ -33,25 +35,35 @@ export default function LoginForm() {
       ? "Email in use with different provider!"
       : "";
 
-  const onSubmit: SubmitHandler<LoginSchemaType> = (data) => {
-    setError("");
-    startTransition(() => {
-      login(data).then((res) => {
-        if (res?.error) {
-          router.replace("/login");
-          setError(res.error);
-        }
-
-        if (!res?.error) {
-          router.push(LOGIN_REDIRECT);
-        }
-
-        if (res?.success) {
-          setSuccess(res.success);
-          router.push(LOGIN_REDIRECT);
-        }
-      });
+  const onSubmit: SubmitHandler<LoginSchemaType> = async (data) => {
+    // ① log the user in WITHOUT an automatic redirect
+    const result = await signIn("credentials", {
+      redirect: false,
+      email: data.email,
+      password: data.password,
     });
+
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
+
+    // ② wait a tick so the auth cookie is written
+    await new Promise((r) => setTimeout(r, 50));
+
+    // ③ read the fresh session
+    const session = await getSession();
+    console.log(session);
+    if (!session) {
+      setError("Could not establish session—please try again.");
+      return;
+    }
+
+    // ④ decide where to go
+    const destination = session.user.role === "ADMIN" ? "/admin" : "/dashboard";
+
+    // ⑤ replace() keeps browser history clean
+    router.replace(destination);
   };
 
   return (
