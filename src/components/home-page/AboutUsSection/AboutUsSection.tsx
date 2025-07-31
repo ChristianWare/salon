@@ -28,7 +28,12 @@ export default function AboutUsSection() {
               <div className={styles.imgOverlay} />
               <div className={styles.textContainer}>
                 <h3 className={styles.subHeading}>Modenern Equipment</h3>
-                <p className={styles.copyii}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga nemo repellat et soluta. Aut repellendus sed facilis, saepe commodi molestiae placeat aliquam dolorem ipsa, ea et ab distinctio eligendi odit. Libero unde aperiam aspernatur qui!</p>
+                <p className={styles.copyii}>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga
+                  nemo repellat et soluta. Aut repellendus sed facilis, saepe
+                  commodi molestiae placeat aliquam dolorem ipsa, ea et ab
+                  distinctio eligendi odit. Libero unde aperiam aspernatur qui!
+                </p>
               </div>
             </div>
           </div>
