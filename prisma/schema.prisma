@@ -69,3 +69,11 @@ enum UserRole {
     ADMIN
     USER
 }
+
+enum BookingStatus {
+    PENDING
+    CONFIRMED
+    COMPLETED
+    CANCELED
+    NO_SHOW
+}
