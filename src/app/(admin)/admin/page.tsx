@@ -8,8 +8,6 @@ export default async function AdminPage() {
   return (
     <div>
       <AdminPageIntro />
-
-      <p>Admin overview here</p>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { requireAdmin } from "./lib/rbac";
-// import AdminPageIntro from "@/components/admin/AdminPageIntro/AdminPageIntro";
-// import SideNav
+import styles from "./Layout.module.css";
+import LayoutWrapper from "@/components/shared/LayoutWrapper";
+import Nav from "@/components/shared/Nav/Nav";
+import AdminSideNav from "@/components/admin/AdminSideNav/AdminSideNav";
 
 export default async function AdminLayout({
   children,
@@ -8,10 +10,21 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   await requireAdmin();
+
   return (
     <>
-      <main >
-        {children}
+      <main className={styles.container}>
+        <section className={styles.container}>
+          <LayoutWrapper>
+            <Nav />
+            <div className={styles.content}>
+              <div className={styles.left}>
+                <AdminSideNav />
+              </div>
+              <div className={styles.right}>{children}</div>
+            </div>
+          </LayoutWrapper>
+        </section>
       </main>
     </>
   );

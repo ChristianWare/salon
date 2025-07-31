@@ -1,18 +1,23 @@
 .container {
   background-color: var(--gray);
-  /* margin-top: -6rem; */
+  margin-top: -6rem;
 }
 
 .content {
+  margin: 1rem;
   border-radius: 15px;
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  grid-gap: 3rem;
+}
+
+.right {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
   gap: 2rem;
 }
-
-
 
 .heading {
   color: var(--blue);
@@ -35,9 +40,6 @@
   display: grid;
   width: 50%;
 }
-
-
-
 
 @media screen and (max-width: 1268px) {
   .content {
