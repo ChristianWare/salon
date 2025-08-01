@@ -18,7 +18,9 @@ export default async function AdminLayout({
           <Nav />
           <div className={styles.content}>
             <div className={styles.left}>
-              <AdminSideNav />
+              <div className={styles.AdminSideNavContainer}>
+                <AdminSideNav />
+              </div>
             </div>
             <div className={styles.right}>{children}</div>
           </div>

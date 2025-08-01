@@ -11,6 +11,14 @@
   grid-gap: 3rem;
 }
 
+.AdminSideNavContainer {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  z-index: 10;
+  top: 50px;
+}
+
 .right {
   width: 100%;
 }
