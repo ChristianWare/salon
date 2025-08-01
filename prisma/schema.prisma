@@ -19,7 +19,9 @@ model User {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    role UserRole @default(USER)
+    role    UserRole  @default(USER)
+    Booking Booking[]
+    Session Session[]
 }
 
 model Account {
@@ -63,6 +65,62 @@ model PasswordResetToken {
     expires DateTime
 
     @@unique([email, token])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Service {
+    id          String  @id @default(cuid())
+    name        String
+    durationMin Int
+    priceCents  Int
+    active      Boolean @default(true)
+
+    bookings Booking[]
+}
+
+model Groomer {
+    id           String   @id @default(cuid())
+    name         String
+    bio          String?
+    specialties  String[] // e.g. ["Doodles", "Senior Dogs"]
+    workingHours Json // { Mon:["09:00","17:00"], … }
+    active       Boolean  @default(true)
+
+    bookings Booking[]
+}
+
+model Booking {
+    id String @id @default(cuid())
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    groomerId String
+    groomer   Groomer @relation(fields: [groomerId], references: [id])
+
+    serviceId String
+    service   Service @relation(fields: [serviceId], references: [id])
+
+    start DateTime
+    end   DateTime // you can compute from `start + service.durationMin`
+
+    depositCents    Int
+    tipCents        Int     @default(0)
+    paymentIntentId String? // Stripe PaymentIntent ID
+    receiptUrl      String? // cached PDF link
+
+    status BookingStatus @default(PENDING)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 enum UserRole {

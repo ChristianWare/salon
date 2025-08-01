@@ -1,9 +1,16 @@
-import styles from './AdminKpiCard.module.css'
+import styles from "./AdminKpiCard.module.css";
 
-export default function AdminKpiCard() {
+export default function AdminKpiCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
   return (
     <div className={styles.container}>
-        <h2>AdminKPI Card</h2>
+      <p>{label}</p>
+      <p>{value}</p>
     </div>
-  )
+  );
 }
