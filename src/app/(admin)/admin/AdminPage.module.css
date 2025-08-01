@@ -1,0 +1,24 @@
+.bottom {
+  margin-top: 5rem;
+}
+
+.heading {
+  font-family: var(--SFUIMedium);
+  font-size: 3rem;
+  text-transform: none;
+}
+
+.kpiCards, .quickLinks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-gap: 1rem;
+  margin-top: 3rem;
+  margin-bottom: 5rem;
+}
+
+
+@media screen and (max-width: 568px) {
+  .kpiCards, .quickLinks {
+    grid-template-columns: 1fr;
+  }
+}

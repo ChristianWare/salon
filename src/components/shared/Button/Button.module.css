@@ -19,7 +19,6 @@
   width: 100%;
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
-  
 }
 
 .orange {
@@ -107,6 +106,13 @@
   height: 2rem;
   position: relative;
   top: 2px;
+}
+
+.plus {
+  width: 2rem;
+  height: 2rem;
+  position: relative;
+  top: -2px;
 }
 
 .noBackgroundBlackText .arrow {

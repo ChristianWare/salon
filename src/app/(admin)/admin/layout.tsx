@@ -12,20 +12,18 @@ export default async function AdminLayout({
   await requireAdmin();
 
   return (
-    <>
-      <main className={styles.container}>
-        <section className={styles.container}>
-          <LayoutWrapper>
-            <Nav />
-            <div className={styles.content}>
-              <div className={styles.left}>
-                <AdminSideNav />
-              </div>
-              <div className={styles.right}>{children}</div>
+    <main>
+      <section className={styles.container}>
+        <LayoutWrapper>
+          <Nav />
+          <div className={styles.content}>
+            <div className={styles.left}>
+              <AdminSideNav />
             </div>
-          </LayoutWrapper>
-        </section>
-      </main>
-    </>
+            <div className={styles.right}>{children}</div>
+          </div>
+        </LayoutWrapper>
+      </section>
+    </main>
   );
 }

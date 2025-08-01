@@ -1,10 +1,11 @@
+import styles from "./AdminPage.module.css";
 import { redirect } from "next/navigation";
 import { auth } from "../../../../auth";
 import AdminPageIntro from "@/components/admin/AdminPageIntro/AdminPageIntro";
 import { db } from "@/lib/db";
 import AdminKpiCard from "@/components/admin/AdminKpiCard/AdminKpiCard";
-import Link from "next/link";
 import { startOfDay, startOfMonth } from "date-fns";
+import Button from "@/components/shared/Button/Button";
 
 export default async function AdminPage() {
   // 1. Enforce ADMIN only
@@ -39,41 +40,47 @@ export default async function AdminPage() {
     100;
 
   return (
-    <div>
-      <AdminPageIntro />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <AdminKpiCard label='Bookings Today' value={bookingsToday} />
-        <AdminKpiCard
-          label='Revenue This Month'
-          value={`$${revenueThisMonth.toFixed(2)}`}
-        />
-        <AdminKpiCard label='Total Bookings' value={totalBookings} />
-        <AdminKpiCard label='Registered Users' value={totalUsers} />
+    <div className={styles.container}>
+      <div className={styles.top}>
+        <AdminPageIntro />
       </div>
-      {/* Quick Links */}
-      <nav>
-        <ul style={{ display: "flex", gap: "1rem" }}>
-          <li>
-            <Link href='/admin/groomers'>Add Groomer</Link>
-          </li>
-          <li>
-            <Link href='/admin/services'>Add Service</Link>
-          </li>
-          <li>
-            <Link href='/admin/bookings'>View Bookings</Link>
-          </li>
-          <li>
-            <Link href='/admin/customers'>View Customers</Link>
-          </li>
-        </ul>
-      </nav>{" "}
+      <div className={styles.bottom}>
+        <h2 className={styles.heading}>Analytics</h2>
+        <div className={styles.kpiCards}>
+          <AdminKpiCard label='Bookings Today' value={bookingsToday} />
+          <AdminKpiCard
+            label='Revenue This Month'
+            value={`$${revenueThisMonth.toFixed(2)}`}
+          />
+          <AdminKpiCard label='Total Bookings' value={totalBookings} />
+          <AdminKpiCard label='Registered Users' value={totalUsers} />
+        </div>
+        <h2 className={styles.heading}>Quick Links</h2>
+        <div className={styles.quickLinks}>
+          <Button
+            href='/admin/groomers'
+            text='Add Groomer'
+            btnType='blueOutline'
+            plus
+          />
+          <Button
+            href='/admin/services'
+            text='Add Service'
+            btnType='blueOutline'
+            plus
+          />
+          <Button
+            href='/admin/bookings'
+            text='View Bookings'
+            btnType='blueOutline'
+          />
+          <Button
+            href='/admin/customers'
+            text='View Customers'
+            btnType='blueOutline'
+          />
+        </div>
+      </div>
     </div>
   );
 }

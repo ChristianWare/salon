@@ -3,4 +3,28 @@
   background-color: var(--white);
   border-radius: 10px;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 5rem;
+}
+
+.label {
+  font-size: 2rem;
+  font-family: var(--SFUIMedium);
+  text-transform: none;
+}
+
+.value {
+  font-size: 2rem;
+  color: var(--blue);
+  font-family: var(--SFUIMedium);
+}
+
+
+@media screen and (max-width: 568px) {
+  .container {
+    gap: 3rem;
+  }
 }

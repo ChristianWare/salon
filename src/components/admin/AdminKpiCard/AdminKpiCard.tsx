@@ -9,8 +9,8 @@ export default function AdminKpiCard({
 }) {
   return (
     <div className={styles.container}>
-      <p>{label}</p>
-      <p>{value}</p>
+      <span className={styles.label}>{label}</span>
+      <p className={styles.value}>{value}</p>
     </div>
   );
 }
