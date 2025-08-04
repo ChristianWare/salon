@@ -2,7 +2,7 @@ import Nav from "@/components/shared/Nav/Nav";
 import styles from "./Hero.module.css";
 import LayoutWrapper from "@/components/shared/LayoutWrapper";
 import Image from "next/image";
-import Img1 from "../../../../public/images/hero.jpg";
+import Img1 from "../../../../public/images/heroiv.jpg";
 import Corner from "@/components/shared/Corner/Corner";
 import Button from "@/components/shared/Button/Button";
 
@@ -15,11 +15,11 @@ export default function Hero() {
           <div className={styles.cornerContainer}>
             <Corner />
           </div>
-          <div className={styles.top}>
+          {/* <div className={styles.top}>
             <div className={styles.imgContainer}>
               <Image src={Img1} alt='Hero Image' fill className={styles.img} />
             </div>
-          </div>
+          </div> */}
           <div className={styles.bottom}>
             <h1 className={styles.heading}>
               The best way to <br />
@@ -39,6 +39,9 @@ export default function Hero() {
               <div className={styles.hero}></div>
             </div>
           </div>
+        </div>
+        <div className={styles.imgContainer}>
+          <Image src={Img1} alt='Hero Image' fill className={styles.img} />
         </div>
       </LayoutWrapper>
     </section>

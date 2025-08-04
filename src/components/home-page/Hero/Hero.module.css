@@ -13,7 +13,7 @@
   margin: 1rem;
   border-radius: 15px;
   padding: 3rem;
-  padding-top: 5rem;
+  padding-top: 7rem;
   position: relative;
 }
 
@@ -33,33 +33,16 @@
   margin-bottom: 3rem;
 }
 
-/* .imgContainer {
-  position: relative;
-  width: 300px;
-  height: 300px;
-  aspect-ratio: 1 / 1;
-}
-
-.img {
-  object-fit: cover;
-  border-radius: 50%;
-  border: 1px solid var(--gray);
-  padding: 1rem;
-  } */
-
 .imgContainer {
   position: relative;
   width: 100%;
-  max-width: 350px;
-  aspect-ratio: 1 / 1;
+  height: 450px;
 }
 
 .img {
   object-fit: cover;
-  border: 1px solid var(--gray);
-  object-position: center;
-  border-radius: 50%;
   padding: 1rem;
+  border-radius: 25px;
 }
 
 .bottom {
