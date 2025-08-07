@@ -19,7 +19,7 @@ const NAV_ITEMS = [
   { title: "Bookings", href: "/admin/bookings", icon: <Calendar /> },
   { title: "Groomers", href: "/admin/groomers", icon: <Employee /> },
   { title: "Services", href: "/admin/services", icon: <Listing /> },
-  { title: "Customers", href: "/admin/customers", icon: <Users /> },
+  { title: "Users", href: "/admin/customers", icon: <Users /> },
   { title: "Reports", href: "/admin/reports", icon: <Report /> },
   { title: "Settings", href: "/admin/settings", icon: <Cog /> },
 ];
@@ -106,5 +106,4 @@ export default function AdminSideNav() {
       </nav>
     </aside>
   );
-
 }

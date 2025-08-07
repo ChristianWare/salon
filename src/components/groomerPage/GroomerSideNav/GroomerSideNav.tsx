@@ -6,7 +6,7 @@ import Calendar from "@/components/icons/Calendar/Calendar";
 import House from "@/components/icons/House/House";
 import Employee from "@/components/icons/Employee/Employee";
 import Cog from "@/components/icons/Cog/Cog";
-import Users from "@/components/icons/Users/Users";
+// import Users from "@/components/icons/Users/Users";
 import Report from "@/components/icons/Report/Report";
 import Listing from "@/components/icons/Listing/Listing";
 import UserButton from "@/components/dashboard/UserButton/UserButton";
@@ -16,14 +16,12 @@ import FalseButton from "@/components/shared/FalseButton/FalseButton";
 
 const NAV_ITEMS = [
   { title: "Dashboard", href: "/groomer", icon: <House /> },
-  { title: "Bookings", href: "/groomer/bookings", icon: <Calendar /> },
-  { title: "Groomers", href: "/groomer/groomers", icon: <Employee /> },
-  { title: "Services", href: "/groomer/services", icon: <Listing /> },
-  { title: "Customers", href: "/groomer/customers", icon: <Users /> },
-  { title: "Reports", href: "/groomer/reports", icon: <Report /> },
+  { title: "My Bookings", href: "/groomer/bookings", icon: <Calendar /> },
+  { title: "Availability", href: "/groomer/availability", icon: <Listing /> },
+  { title: "Profile", href: "/groomer/profile", icon: <Employee /> },
+  { title: "Earnings", href: "/groomer/earnings", icon: <Report /> },
   { title: "Settings", href: "/groomer/settings", icon: <Cog /> },
 ];
-
 export default function GroomerSideNav() {
   const [isOpen, setIsOpen] = useState(false);
 
