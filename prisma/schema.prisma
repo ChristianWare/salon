@@ -22,6 +22,7 @@ model User {
     role    UserRole  @default(USER)
     Booking Booking[]
     Session Session[]
+    Groomer Groomer[]
 }
 
 model Account {
@@ -87,14 +88,13 @@ model Service {
 }
 
 model Groomer {
-    id           String   @id @default(cuid())
-    name         String
+    id           String    @id @map("userId")
+    user         User      @relation(fields: [id], references: [id], onDelete: Cascade)
     bio          String?
-    specialties  String[] // e.g. ["Doodles", "Senior Dogs"]
-    workingHours Json // { Mon:["09:00","17:00"], … }
-    active       Boolean  @default(true)
-
-    bookings Booking[]
+    specialties  String[]
+    workingHours Json
+    active       Boolean   @default(true)
+    bookings     Booking[]
 }
 
 model Booking {

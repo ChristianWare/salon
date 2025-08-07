@@ -100,6 +100,15 @@
   padding: 0.5rem 1.6rem;
   /* padding-right: 1.6rem; */
 }
+
+.arrow {
+  transform: rotate(45deg);
+  font-size: 1.4rem;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  top: -1px;
+}
+
 /* 
 @media (hover: hover) and (pointer: fine) {
   .container:hover .arrow {

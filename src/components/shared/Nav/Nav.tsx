@@ -99,7 +99,7 @@ export default function Nav({ color = "", hamburgerColor = "" }: Props) {
         </div>
         <div className={styles.btnContainer}>
           <div className={styles.btn1}>
-            <Button href='/contact' text='Book now' btnType='orangeNav' arrow />
+            <Button href='/booking' text='Book now' btnType='orangeNav' arrow />
           </div>
           <div className={styles.btn2}>
             <Link href='/' className={styles.noBackgroundWhiteText}>

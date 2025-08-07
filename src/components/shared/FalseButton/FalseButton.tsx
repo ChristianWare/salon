@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import styles from "./FalseButton.module.css";
+import Arrow from "@/components/icons/Arrow/Arrow";
 
 interface FalseButtonProps {
   text?: string;
@@ -8,12 +9,14 @@ interface FalseButtonProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   type?: "submit" | "reset" | "button" | undefined;
   disabled?: boolean;
+  arrow?: boolean;
 }
 
 export default function FalseButton({
   text,
   btnType = "primary",
   children,
+  arrow,
   onClick,
   type,
   disabled,
@@ -27,7 +30,9 @@ export default function FalseButton({
       type={type}
       disabled={disabled}
     >
-      <div className={`${styles.btn} ${styles[btnType]}`}>{content}</div>
+      <div className={`${styles.btn} ${styles[btnType]}`}>
+        {content} {arrow && <Arrow className={styles.arrow} />}
+      </div>
     </button>
   );
 }
