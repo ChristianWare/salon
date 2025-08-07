@@ -123,6 +123,23 @@ model Booking {
     updatedAt DateTime @updatedAt
 }
 
+model Config {
+    key   String @id
+    value String
+}
+
+model NotificationTemplate {
+    id      String @id @default(cuid())
+    event   String @unique
+    subject String
+    body    String
+}
+
+model BlackoutDate {
+    id   String   @id @default(cuid())
+    date DateTime
+}
+
 enum UserRole {
     ADMIN
     USER

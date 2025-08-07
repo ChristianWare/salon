@@ -6,7 +6,7 @@ import Hero from "@/components/home-page/Hero/Hero";
 import HowItWorks from "@/components/home-page/HowItWorks/HowItWorks";
 import PostHero from "@/components/home-page/PostHero/PostHero";
 import Reviews from "@/components/home-page/Reviews/Reviews";
-import ValueProposition from "@/components/home-page/ValueProposition/ValueProposition";
+// import ValueProposition from "@/components/home-page/ValueProposition/ValueProposition";
 import WhyChooseUs from "@/components/home-page/WhyChooseUs/WhyChooseUs";
 
 export default function Home() {
@@ -14,7 +14,7 @@ export default function Home() {
     <main>
       <Hero />
       <PostHero />
-      <ValueProposition />
+      {/* <ValueProposition /> */}
       <AboutUsSection />
       <WhyChooseUs />
       <Experts />
