@@ -48,6 +48,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token.userId) {
         session.user.userId = token.userId as string;
       }
+
+      /* ---- NEW: also expose id so older code works ---- */
+      if (token.userId) {
+        session.user.id = token.userId as string;
+      }
+
       return session;
     },
   },

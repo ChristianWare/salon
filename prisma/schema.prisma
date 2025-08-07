@@ -95,6 +95,16 @@ model Groomer {
     workingHours Json
     active       Boolean   @default(true)
     bookings     Booking[]
+    breaks       Break[]
+}
+
+model Break {
+    id        String   @id @default(cuid())
+    groomerId String
+    groomer   Groomer  @relation(fields: [groomerId], references: [id], onDelete: Cascade)
+    date      DateTime
+
+    @@unique([groomerId, date])
 }
 
 model Booking {
