@@ -9,6 +9,7 @@ declare module "next-auth" {
     user: {
       role: "USER" | "ADMIN";
       userId: string;
+      isGroomer: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -38,6 +39,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       token.role = user.role;
       token.userId = user.id;
 
+      token.isGroomer = await db.groomer
+        .findUnique({
+          where: { id: user.id },
+          select: { active: true },
+        })
+        .then((g) => !!g?.active);
+
       return token;
     },
     async session({ session, token }) {
@@ -54,6 +62,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.userId as string;
       }
 
+      if (typeof token.isGroomer === "boolean")
+        session.user.isGroomer = token.isGroomer;
       return session;
     },
   },

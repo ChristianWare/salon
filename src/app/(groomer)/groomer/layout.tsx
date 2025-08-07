@@ -1,15 +1,15 @@
-import { requireAdmin } from "@/lib/rbac";
-import styles from "./Layout.module.css";
+import { requireGroomer } from "@/lib/rbac";
+import styles from "./GroomerLayout.module.css";
 import LayoutWrapper from "@/components/shared/LayoutWrapper";
 import Nav from "@/components/shared/Nav/Nav";
-import AdminSideNav from "@/components/admin/AdminSideNav/AdminSideNav";
+import GroomerSideNav from "@/components/groomerPage/GroomerSideNav/GroomerSideNav";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  await requireAdmin();
+  await requireGroomer();
 
   return (
     <main>
@@ -19,7 +19,7 @@ export default async function AdminLayout({
           <div className={styles.content}>
             <div className={styles.left}>
               <div className={styles.AdminSideNavContainer}>
-                <AdminSideNav />
+                <GroomerSideNav />
               </div>
             </div>
             <div className={styles.right}>{children}</div>

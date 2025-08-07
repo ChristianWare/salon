@@ -30,15 +30,22 @@ export default async function DashboardPageIntro() {
               <UserButton />
               <Button btnType='white' text='Go Home' href='/' />
             </div>
-              <div className={styles.adminBtnContainer}>
-                {session?.user?.role === "ADMIN" && (
-                  <Button
-                    btnType='whiteOutline'
-                    text='Admin Panel'
-                    href='/admin'
-                  />
-                )}
-              </div>
+            <div className={styles.adminBtnContainer}>
+              {session?.user?.role === "ADMIN" && (
+                <Button
+                  btnType='whiteOutline'
+                  text='Admin Panel'
+                  href='/admin'
+                />
+              )}
+              {session?.user?.isGroomer && (
+                <Button
+                  btnType='whiteOutline'
+                  text='Groomer Panel'
+                  href='/groomer'
+                />
+              )}
+            </div>
           </div>
           <div className={styles.right}>
             <div className={styles.dogContainer}>
