@@ -16,7 +16,7 @@ import FalseButton from "@/components/shared/FalseButton/FalseButton";
 
 const NAV_ITEMS = [
   { title: "Dashboard", href: "/groomer", icon: <House /> },
-  { title: "My Bookings", href: "/groomer/bookings", icon: <Calendar /> },
+  { title: "My Bookings", href: "/groomer/my-bookings", icon: <Calendar /> },
   { title: "Availability", href: "/groomer/availability", icon: <Listing /> },
   { title: "Profile", href: "/groomer/profile", icon: <Employee /> },
   { title: "Earnings", href: "/groomer/earnings", icon: <Report /> },
