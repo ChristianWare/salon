@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 datasource bd {
     provider = "postgresql"
     url      = env("DATABASE_URL")
@@ -7,6 +9,11 @@ generator client {
     provider = "prisma-client-js"
 }
 
+/**
+ * ─────────────────────────────
+ * Core auth / user models
+ * ──────────────────────────────
+ */
 model User {
     id            String    @id @default(cuid())
     name          String?
@@ -22,13 +29,13 @@ model User {
     role    UserRole  @default(USER)
     Booking Booking[]
     Session Session[]
-    Groomer Groomer[]
+
+    // One-to-one to Groomer (shared PK)
+    groomer Groomer? @relation("UserGroomer")
 }
 
 model Account {
-    // required by NextAuth adapter ↓↓↓↓↓
-    id String @id @default(cuid())
-
+    id     String @id @default(cuid())
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -77,6 +84,11 @@ model Session {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+/**
+ * ─────────────────────────────
+ * Business models
+ * ──────────────────────────────
+ */
 model Service {
     id          String  @id @default(cuid())
     name        String
@@ -88,14 +100,30 @@ model Service {
 }
 
 model Groomer {
-    id           String    @id @map("userId")
-    user         User      @relation(fields: [id], references: [id], onDelete: Cascade)
+    // IMPORTANT: map Prisma `id` to existing DB column `userId`
+    // If your real column name is different, change "userId" below.
+    id String @id @map("userId")
+
+    // Shared PK one-to-one with User
+    user User @relation(name: "UserGroomer", fields: [id], references: [id], onDelete: Cascade)
+
     bio          String?
     specialties  String[]
     workingHours Json
-    active       Boolean   @default(true)
-    bookings     Booking[]
-    breaks       Break[]
+    active       Boolean  @default(true)
+
+    // Settings
+    autoConfirm       Boolean @default(true) // instant confirm vs pending
+    minLeadMinutes    Int     @default(60) // minimum lead time
+    bufferMin         Int     @default(0) // per-appointment buffer
+    emailOptIn        Boolean @default(true)
+    smsOptIn          Boolean @default(false)
+    notificationPhone String?
+
+    breaks   Break[]
+    bookings Booking[]
+
+    @@map("Groomer") // (optional) explicit table map; remove if default
 }
 
 model Break {
@@ -120,12 +148,12 @@ model Booking {
     service   Service @relation(fields: [serviceId], references: [id])
 
     start DateTime
-    end   DateTime // you can compute from `start + service.durationMin`
+    end   DateTime
 
     depositCents    Int
     tipCents        Int     @default(0)
-    paymentIntentId String? // Stripe PaymentIntent ID
-    receiptUrl      String? // cached PDF link
+    paymentIntentId String?
+    receiptUrl      String?
 
     status BookingStatus @default(PENDING)
 

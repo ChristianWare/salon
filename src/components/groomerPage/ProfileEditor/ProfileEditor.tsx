@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import AvailabilityEditor from "../AvailabilityEditor/AvailabilityEditor";
+// import AvailabilityEditor from "../AvailabilityEditor/AvailabilityEditor";
 
 export default function ProfileEditor({
   initialBio,
@@ -61,7 +62,7 @@ export default function ProfileEditor({
         </label>
       </div>
 
-      <AvailabilityEditor initial={initialWorking} onChange={setWorking} />
+      {/* <AvailabilityEditor initial={initialWorking} onChange={setWorking} /> */}
 
       <button type='submit' disabled={pending}>
         {pending ? "Updating…" : "Save Profile"}
