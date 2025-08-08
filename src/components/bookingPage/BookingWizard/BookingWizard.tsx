@@ -1,156 +1,188 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/components/bookingPage/BookingWizard/BookingWizard.tsx
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import FalseButton from "@/components/shared/FalseButton/FalseButton";
+import { useEffect, useMemo, useState, useTransition } from "react";
 
 type Service = {
   id: string;
   name: string;
   durationMin: number;
   priceCents: number;
+  active: boolean;
 };
-type Groomer = { id: string; name: string };
+type GroomerLite = { id: string; name: string };
+
+type Slot = { iso: string; label: string; time24: string };
 
 export default function BookingWizard({
   services,
   groomers,
 }: {
   services: Service[];
-  groomers: Groomer[];
+  groomers: GroomerLite[];
 }) {
-  const router = useRouter();
-
-  // step state
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-
-  // form state
   const [serviceId, setServiceId] = useState("");
   const [groomerId, setGroomerId] = useState("");
-  const [date, setDate] = useState(""); // YYYY-MM-DD
-  const [slot, setSlot] = useState(""); // ISO string
+  const [date, setDate] = useState<string>(""); // YYYY-MM-DD
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [pending, start] = useTransition();
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState<string>("");
 
-  // slots fetched from API
-  const [slots, setSlots] = useState<string[]>([]);
-  const loadSlots = async () => {
-    if (!serviceId || !groomerId || !date) return;
-    const q = new URLSearchParams({ serviceId, groomerId, date }).toString();
-    const res = await fetch("/api/availability?" + q);
-    setSlots(await res.json());
-  };
+  const canFetch = useMemo(
+    () => serviceId && groomerId && date,
+    [serviceId, groomerId, date]
+  );
 
-  // server action wrapped in fetch (simplest)
-  const createBooking = async () => {
-    const res = await fetch("/api/book", {
-      method: "POST",
-      body: JSON.stringify({ serviceId, groomerId, start: slot }),
-    });
-    if (res.ok) {
-      router.push("/dashboard"); // or success page
-    } else {
-      alert("Booking failed.");
+  // fetch slots when all inputs chosen
+  useEffect(() => {
+    setSlots([]);
+    setMessage("");
+    if (!canFetch) return;
+
+    let canceled = false;
+    (async () => {
+      start(async () => {
+        try {
+          const params = new URLSearchParams({
+            serviceId,
+            groomerId,
+            date, // YYYY-MM-DD
+          }).toString();
+          const res = await fetch(`/api/availability?${params}`, {
+            cache: "no-store",
+          });
+          const data = (await res.json()) as Slot[] | { error: string };
+          if (!canceled) {
+            if (Array.isArray(data)) setSlots(data);
+            else setMessage(data.error || "Failed to load availability");
+          }
+        } catch (e) {
+          if (!canceled) setMessage("Failed to load availability");
+        }
+      });
+    })();
+
+    return () => {
+      canceled = true;
+    };
+  }, [canFetch, serviceId, groomerId, date, start]);
+
+  async function book(slotIso: string) {
+    setSubmitting(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serviceId,
+          groomerId,
+          start: slotIso,
+        }),
+      });
+      if (res.status === 409) {
+        setMessage("Whoops — that slot was just taken. Pick another one.");
+      } else if (!res.ok) {
+        const j = await res.json().catch(() => ({}) as any);
+        setMessage(j.error || "Booking failed");
+      } else {
+        setMessage("Booked! Check your email for confirmation.");
+        // Optionally redirect to “My bookings” page
+        // router.push('/dashboard/bookings')
+      }
+    } catch {
+      setMessage("Booking failed");
+    } finally {
+      setSubmitting(false);
     }
-  };
+  }
 
-  /*──────────────────────────  UI  ─────────────────────────*/
   return (
-    <div style={{ maxWidth: 600 }}>
-      {step === 1 && (
-        <>
-          <h2>Select Service</h2>
-          <select
-            value={serviceId}
-            onChange={(e) => setServiceId(e.target.value)}
-          >
-            <option value=''>Choose…</option>
-            {services.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} — ${(s.priceCents / 100).toFixed(2)}
-              </option>
-            ))}
-          </select>
-          <br />
-          <button disabled={!serviceId} onClick={() => setStep(2)}>
-            Next
-          </button>
-        </>
-      )}
-
-      {step === 2 && (
-        <>
-          <h2>Choose Groomer & Date</h2>
-          <select
-            value={groomerId}
-            onChange={(e) => setGroomerId(e.target.value)}
-          >
-            <option value=''>Any Groomer</option>
-            {groomers.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
-          <br />
-          <input
-            type='date'
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-          <br />
-          {/* <button disabled={!date || !groomerId} onClick={() => loadSlots()}>
-            Show Slots
-          </button> */}
-          <FalseButton
-            disabled={!date || !groomerId}
-            onClick={() => loadSlots()}
-            text='Show Slots'
-            btnType='orange'
-          />
-          {slots.length > 0 && (
-            <ul style={{ marginTop: 12 }}>
-              {slots.map((iso) => (
-                <li key={iso}>
-                  <label>
-                    <input
-                      type='radio'
-                      name='slot'
-                      value={iso}
-                      checked={slot === iso}
-                      onChange={() => setSlot(iso)}
-                    />
-                    {new Date(iso).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </label>
-                </li>
+    <div style={{ marginTop: "1rem" }}>
+      <div style={{ display: "grid", gap: "1rem", maxWidth: 560 }}>
+        <div>
+          <label>
+            <strong>Service</strong>
+            <br />
+            <select
+              value={serviceId}
+              onChange={(e) => setServiceId(e.target.value)}
+            >
+              <option value=''>Select service</option>
+              {services.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
               ))}
-            </ul>
-          )}
-          <FalseButton
-            disabled={!slot}
-            onClick={() => setStep(3)}
-            text='Next'
-            btnType='noBackgroundBlackText'
-            arrow
-          />
-        </>
-      )}
+            </select>
+          </label>
+        </div>
 
-      {step === 3 && (
-        <>
-          <h2>Confirm</h2>
-          <p>
-            Service: {services.find((s) => s.id === serviceId)?.name}
+        <div>
+          <label>
+            <strong>Groomer</strong>
             <br />
-            Groomer: {groomers.find((g) => g.id === groomerId)?.name}
+            <select
+              value={groomerId}
+              onChange={(e) => setGroomerId(e.target.value)}
+            >
+              <option value=''>Select groomer</option>
+              {groomers.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div>
+          <label>
+            <strong>Date</strong>
             <br />
-            When:&nbsp;
-            {new Date(slot).toLocaleString()}
-          </p>
-          <button onClick={createBooking}>Confirm Booking</button>
-        </>
-      )}
+            <input
+              type='date'
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              min={new Date().toISOString().slice(0, 10)}
+            />
+          </label>
+        </div>
+      </div>
+
+      {/* Slots */}
+      <div style={{ marginTop: "1rem" }}>
+        {pending && <p>Loading available times…</p>}
+        {!pending && canFetch && slots.length === 0 && !message && (
+          <p>No available times for that date.</p>
+        )}
+        {message && <p style={{ color: "#b33636" }}>{message}</p>}
+
+        {slots.length > 0 && (
+          <>
+            <h3>Available Times</h3>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {slots.map((s) => (
+                <button
+                  key={s.iso}
+                  onClick={() => book(s.iso)}
+                  disabled={submitting}
+                  style={{
+                    padding: "8px 12px",
+                    border: "1px solid #ddd",
+                    borderRadius: 6,
+                  }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

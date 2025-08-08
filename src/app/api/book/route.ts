@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/app/api/book/route.ts
 import { NextResponse } from "next/server";
 import { auth } from "../../../../auth";
 import { db } from "@/lib/db";
+import { isGroomerAvailable } from "@/lib/availability";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -8,7 +11,7 @@ export async function POST(req: Request) {
 
   const { serviceId, groomerId, start } = await req.json();
   const service = await db.service.findUnique({ where: { id: serviceId } });
-  if (!service)
+  if (!service || !service.active)
     return NextResponse.json({ error: "bad service" }, { status: 400 });
 
   const startDate = new Date(start);
@@ -16,21 +19,33 @@ export async function POST(req: Request) {
     startDate.getTime() + service.durationMin * 60 * 1000
   );
 
-  if (!session.user.id) {
+  const userId = (session.user as any).id || session.user.userId; // you store userId on session
+  if (!userId)
     return NextResponse.json({ error: "User ID missing" }, { status: 400 });
+
+  // ✅ Final recheck
+  const available = await isGroomerAvailable(groomerId, startDate, endDate);
+  if (!available) {
+    return NextResponse.json(
+      { error: "Selected time is no longer available" },
+      { status: 409 }
+    );
   }
 
-  await db.booking.create({
+  // Create booking instantly as CONFIRMED (your “no pending” flow)
+  const booking = await db.booking.create({
     data: {
-      userId: session.user.id as string,
+      userId,
       serviceId,
       groomerId,
       start: startDate,
       end: endDate,
       depositCents: 0,
-      status: "PENDING",
+      tipCents: 0,
+      status: "CONFIRMED",
     },
+    select: { id: true },
   });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, bookingId: booking.id });
 }
