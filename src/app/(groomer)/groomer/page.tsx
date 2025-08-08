@@ -1,4 +1,3 @@
-
 import styles from "./GroomerLayout.module.css";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
@@ -10,8 +9,6 @@ import Button from "@/components/shared/Button/Button";
 import { startOfDay, endOfDay, addDays, startOfMonth } from "date-fns";
 import AdminKpiCard from "@/components/admin/AdminKpiCard/AdminKpiCard";
 import Link from "next/link";
-
-
 
 /*─────────────────────────────────────────────────
   1️⃣ Server Action: Update Profile
@@ -168,8 +165,9 @@ export default async function GroomerDashboardPage() {
   ]);
 
   // convert cents → dollars
-  const fmt = (agg: { _sum: { depositCents?: number | null; tipCents?: number | null } }) =>
-    ((agg._sum.depositCents ?? 0) + (agg._sum.tipCents ?? 0)) / 100;
+  const fmt = (agg: {
+    _sum: { depositCents?: number | null; tipCents?: number | null };
+  }) => ((agg._sum.depositCents ?? 0) + (agg._sum.tipCents ?? 0)) / 100;
 
   const earningsToday = fmt(earningsTodayAgg);
   const earningsMTD = fmt(earningsMTDAgg);
@@ -213,7 +211,7 @@ export default async function GroomerDashboardPage() {
 
         {/* ── Upcoming Appointments ────────────────────── */}
         <section style={{ marginTop: "2rem" }}>
-          <h2>Next Appointments</h2>
+          <h2>Next Appointment(s)</h2>
           {nextBookings.length === 0 ? (
             <p>You have no upcoming appointments.</p>
           ) : (
@@ -265,7 +263,7 @@ export default async function GroomerDashboardPage() {
               text='Edit Profile'
             />
             <Button
-              href='/groomer/bookings'
+              href='/groomer/my-bookings'
               btnType='blueOutline'
               text='View All Bookings'
             />
