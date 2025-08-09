@@ -99,11 +99,11 @@ export default function UserSideNav() {
         <div className={styles.btnContainer}>
           <UserButton />
           <Button btnType='blue' text='Go Home' href='/' />
-          <Button
+          {/* <Button
             btnType='blueOutline'
             text='User Dashboard'
             href='/dashboard'
-          />
+          /> */}
         </div>
       </nav>
     </aside>
