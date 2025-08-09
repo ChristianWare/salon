@@ -93,6 +93,17 @@
   color: var(--white);
 }
 
+.orangeOutline {
+  background-color: transparent;
+  color: var(--orange);
+  border: 1px solid var(--orange);
+}
+
+.orangeOutline:hover {
+  background-color: var(--orange);
+  color: var(--white);
+}
+
 .arrow {
   transform: rotate(45deg);
   font-size: 1.4rem;

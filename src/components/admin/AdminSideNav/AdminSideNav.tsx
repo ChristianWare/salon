@@ -13,6 +13,7 @@ import UserButton from "@/components/dashboard/UserButton/UserButton";
 import Button from "@/components/shared/Button/Button";
 import { useState } from "react";
 import FalseButton from "@/components/shared/FalseButton/FalseButton";
+import { useSession } from "next-auth/react";
 
 const NAV_ITEMS = [
   { title: "Dashboard", href: "/admin", icon: <House /> },
@@ -30,6 +31,10 @@ export default function AdminSideNav() {
   const openMenu = () => {
     setIsOpen((o) => !o);
   };
+
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN";
+  const isGroomer = !!session?.user?.isGroomer;
 
   return (
     <aside className={styles.container}>
@@ -91,6 +96,13 @@ export default function AdminSideNav() {
               text='User Dashboard'
               href='/dashboard'
             />
+            {isGroomer && (
+              <Button
+                btnType='orangeOutline'
+                text='Groomer Dashboard'
+                href='/groomer'
+              />
+            )}
           </div>
         </ul>
 
@@ -102,6 +114,13 @@ export default function AdminSideNav() {
             text='User Dashboard'
             href='/dashboard'
           />
+          {isGroomer && (
+            <Button
+              btnType='orangeOutline'
+              text='Groomer Dashboard'
+              href='/groomer'
+            />
+          )}
         </div>
       </nav>
     </aside>

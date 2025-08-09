@@ -1,4 +1,5 @@
-import { requireGroomer } from "@/lib/rbac";
+// src/app/(user)/dashboard/layout.tsx
+import { requireUser } from "@/lib/rbac";
 import styles from "./UserLayout.module.css";
 import LayoutWrapper from "@/components/shared/LayoutWrapper";
 import Nav from "@/components/shared/Nav/Nav";
@@ -9,7 +10,7 @@ export default async function UserLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireGroomer();
+  await requireUser(); // ✅ Admins, Groomers, and Users allowed
 
   return (
     <main>
