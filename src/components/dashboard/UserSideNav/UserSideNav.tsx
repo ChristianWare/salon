@@ -5,7 +5,7 @@ import Link from "next/link";
 import Calendar from "@/components/icons/Calendar/Calendar";
 import House from "@/components/icons/House/House";
 import Cog from "@/components/icons/Cog/Cog";
-// import Users from "@/components/icons/Users/Users";
+import Users from "@/components/icons/Users/Users";
 import Report from "@/components/icons/Report/Report";
 import Listing from "@/components/icons/Listing/Listing";
 import UserButton from "@/components/dashboard/UserButton/UserButton";
@@ -16,11 +16,15 @@ import FalseButton from "@/components/shared/FalseButton/FalseButton";
 const NAV_ITEMS = [
   { title: "Dashboard", href: "/dashboard", icon: <House /> },
   { title: "Book Appointment", href: "/booking", icon: <Calendar /> },
-  { title: "My Bookings", href: "/dashboard/bookings", icon: <Listing /> }, // or anchor within /dashboard
-  { title: "Profile & Settings", href: "/account", icon: <Cog /> },
-  { title: "Billing & Receipts", href: "/account/billing", icon: <Report /> }, // if you have this route
+  { title: "My Bookings", href: "/dashboard/my-bookings", icon: <Listing /> }, // or anchor within /dashboard
+  { title: "Profile", href: "/dashboard/profile", icon: <Users /> },
+  { title: "Settings", href: "/dashboard/settings", icon: <Cog /> },
+  {
+    title: "Billing & Receipts",
+    href: "/dashboard/billing-and-receipts",
+    icon: <Report />,
+  }, // if you have this route
 ];
-
 
 export default function UserSideNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,7 +72,7 @@ export default function UserSideNav() {
 
           <div className={styles.linksWrapper}>
             {NAV_ITEMS.map(({ title, href, icon }) => (
-              <li key={href}>
+              <li key={title}>
                 <Link
                   href={href}
                   className={styles.navLink}
