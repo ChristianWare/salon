@@ -5,7 +5,22 @@ import BookingWizard from "@/components/bookingPage/BookingWizard/BookingWizard"
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function ymd(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+
+const dayToIdx: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
 export default async function BookingPage() {
+  // Services
   const services = await db.service.findMany({
     where: { active: true },
     orderBy: { name: "asc" },
@@ -18,16 +33,39 @@ export default async function BookingPage() {
     },
   });
 
+  // Groomers (with name, workingHours JSON, and blackout dates)
   const groomerRows = await db.groomer.findMany({
     where: { active: true },
     orderBy: { user: { name: "asc" } },
-    include: { user: { select: { name: true } } },
+    select: {
+      id: true,
+      workingHours: true, // JSON like { Mon: [[start,end]], ... }
+      user: { select: { name: true } },
+      breaks: { select: { date: true } }, // blackout dates
+    },
   });
 
+  // Wizard dropdown list
   const groomers = groomerRows.map((g) => ({
     id: g.id,
     name: g.user?.name ?? "—",
   }));
+
+  // Build calendars map: { [groomerId]: { workDays: number[], blackoutISO: string[] } }
+  const calendars = Object.fromEntries(
+    groomerRows.map((g) => {
+      const wh = (g.workingHours || {}) as Record<string, [string, string][]>;
+      const workDays = Object.entries(wh)
+        .filter(([, slots]) => Array.isArray(slots) && slots.length > 0)
+        .map(([day]) => dayToIdx[day]!)
+        .filter((n) => Number.isInteger(n))
+        .sort((a, b) => a - b);
+
+      const blackoutISO = (g.breaks || []).map((b) => ymd(b.date));
+
+      return [g.id, { workDays, blackoutISO }];
+    })
+  );
 
   return (
     <section style={{ padding: "2rem" }}>
@@ -58,7 +96,11 @@ export default async function BookingPage() {
 
       {/* Wizard card */}
       <section style={card}>
-        <BookingWizard services={services} groomers={groomers} />
+        <BookingWizard
+          services={services}
+          groomers={groomers}
+          calendars={calendars}
+        />
       </section>
     </section>
   );
