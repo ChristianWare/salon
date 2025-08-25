@@ -1,6 +1,8 @@
-import Link from "next/link";
+// import Link from "next/link";
 import { db } from "@/lib/db";
 import BookingWizard from "@/components/bookingPage/BookingWizard/BookingWizard";
+import BookingPageIntro from "@/components/bookingPage/BookingPageIntro/BookingPageIntro";
+// import LayoutWrapper from "@/components/shared/LayoutWrapper";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -68,33 +70,35 @@ export default async function BookingPage() {
   );
 
   return (
-    <section style={{ padding: "2rem" }}>
+    <main>
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 16,
-          marginBottom: 12,
-        }}
-      >
-        <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>
-          Book an Appointment
-        </h1>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <Link href='/dashboard/my-bookings' style={outlineBtn}>
-            My Bookings
-          </Link>
+      <BookingPageIntro />
+      {/* <LayoutWrapper>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+            marginBottom: 12,
+          }}
+        >
+          <h2 style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>
+            Book an Appointment
+          </h2>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Link href='/dashboard/my-bookings' style={outlineBtn}>
+              My Bookings
+            </Link>
+          </div>
         </div>
-      </div>
 
-      <p style={{ color: "#555", marginTop: 0, marginBottom: 12 }}>
-        Choose a service, pick a groomer and date, then select an available
-        time.
-      </p>
+        <p style={{ color: "#555", marginTop: 0, marginBottom: 12 }}>
+          Choose a service, pick a groomer and date, then select an available
+          time.
+        </p>
+      </LayoutWrapper> */}
 
-      {/* Wizard card */}
       <section style={card}>
         <BookingWizard
           services={services}
@@ -102,7 +106,7 @@ export default async function BookingPage() {
           calendars={calendars}
         />
       </section>
-    </section>
+    </main>
   );
 }
 
@@ -113,12 +117,12 @@ const card: React.CSSProperties = {
   padding: 12,
   background: "white",
 };
-const outlineBtn: React.CSSProperties = {
-  padding: "8px 14px",
-  borderRadius: 6,
-  background: "white",
-  color: "#333",
-  border: "1px solid #ddd",
-  cursor: "pointer",
-  textDecoration: "none",
-};
+// const outlineBtn: React.CSSProperties = {
+//   padding: "8px 14px",
+//   borderRadius: 6,
+//   background: "white",
+//   color: "#333",
+//   border: "1px solid #ddd",
+//   cursor: "pointer",
+//   textDecoration: "none",
+// };

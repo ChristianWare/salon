@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import LayoutWrapper from "@/components/shared/LayoutWrapper";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 /* ─────────────────────────────────────────────────────────
@@ -430,10 +431,10 @@ export default function BookingWizard({
     });
   }
 
-
   return (
-    <div>
+    <LayoutWrapper>
       {/* selectors */}
+
       <div style={{ display: "grid", gap: 12, maxWidth: 620 }}>
         <div>
           <label style={label}>Service</label>
@@ -543,7 +544,7 @@ export default function BookingWizard({
           </div>
         </>
       )}
-    </div>
+    </LayoutWrapper>
   );
 }
 
