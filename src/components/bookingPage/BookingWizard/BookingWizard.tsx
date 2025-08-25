@@ -15,9 +15,24 @@ type Service = {
   priceCents: number;
   active: boolean;
 };
+
 type GroomerLite = { id: string; name: string };
-type Slot = { iso: string; label: string; time24: string };
+
+type Slot = {
+  iso: string;
+  label: string;
+  time24: string;
+  /** present when groomerId=ANY was used to fetch availability */
+  groomerId?: string;
+  groomerName?: string;
+};
+
 type GroomerCalendar = { workDays: number[]; blackoutISO: string[] };
+
+/* ─────────────────────────────────────────────────────────
+   Constants
+────────────────────────────────────────────────────────── */
+const ANY_ID = "ANY";
 
 /* ─────────────────────────────────────────────────────────
    Date helpers
@@ -324,21 +339,39 @@ export default function BookingWizard({
     : null;
   const duration = selectedService?.durationMin ?? null;
 
+  // For helper text when a specific groomer is chosen
   const selectedCal = useMemo(
-    () => calendars[groomerId],
+    () =>
+      groomerId && groomerId !== ANY_ID ? calendars[groomerId] : undefined,
     [calendars, groomerId]
   );
 
+  // Date enable rules:
+  // - Specific groomer: original behavior (only that groomer's work days, minus blackouts)
+  // - ANY: enable if at least one groomer works that DOW and isn't blacked out that date
   const isDateEnabled = useMemo(() => {
-    if (!selectedCal) return (d: Date) => true; // until groomer chosen
-    const workSet = new Set(selectedCal.workDays); // 0..6
-    const blackoutSet = new Set(selectedCal.blackoutISO); // "YYYY-MM-DD"
+    if (groomerId && groomerId !== ANY_ID) {
+      const cal = calendars[groomerId];
+      if (!cal) return (d: Date) => true;
+      const workSet = new Set(cal.workDays);
+      const blackoutSet = new Set(cal.blackoutISO);
+      return (d: Date) => workSet.has(d.getDay()) && !blackoutSet.has(ymd(d));
+    }
+
+    // ANY groomer case
+    const entries = Object.entries(calendars);
+    if (entries.length === 0) return (_d: Date) => false;
     return (d: Date) => {
-      const dow = d.getDay();
-      if (!workSet.has(dow)) return false;
-      return !blackoutSet.has(ymd(d));
+      const day = d.getDay();
+      const iso = ymd(d);
+      for (const [, cal] of entries) {
+        if (cal.workDays.includes(day) && !cal.blackoutISO.includes(iso)) {
+          return true;
+        }
+      }
+      return false;
     };
-  }, [selectedCal]);
+  }, [calendars, groomerId]);
 
   // If current selected date becomes invalid after switching groomer, clear it
   useEffect(() => {
@@ -369,7 +402,7 @@ export default function BookingWizard({
       try {
         const params = new URLSearchParams({
           serviceId,
-          groomerId,
+          groomerId, // may be a specific ID or "ANY"
           date,
         }).toString();
         const res = await fetch(`/api/availability?${params}`, {
@@ -390,7 +423,7 @@ export default function BookingWizard({
     };
   }, [canFetch, serviceId, groomerId, date]);
 
-  async function book(slotIso: string) {
+  async function book(slotIso: string, slotGroomerId?: string) {
     setSubmitting(true);
     setMessage("");
     setSuccess("");
@@ -398,7 +431,12 @@ export default function BookingWizard({
       const res = await fetch("/api/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ serviceId, groomerId, start: slotIso }),
+        body: JSON.stringify({
+          serviceId,
+          // If we fetched in ANY mode, prefer the slot's groomerId (the owner of that time)
+          groomerId: slotGroomerId ?? groomerId,
+          start: slotIso,
+        }),
       });
 
       if (res.status === 409) {
@@ -416,25 +454,27 @@ export default function BookingWizard({
     }
   }
 
-  function displayTime(slot: Slot) {
-    // Prefer the canonical 24h field if present:
-    if (slot.time24) {
-      const [h, m] = slot.time24.split(":").map(Number);
-      const ampm = h >= 12 ? "PM" : "AM";
-      const h12 = ((h + 11) % 12) + 1;
-      return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
-    }
-    // Fallback: derive from ISO
+function displayTime(slot: Slot) {
+  const hasHHMM =
+    typeof slot.time24 === "string" && /^\d{2}:\d{2}$/.test(slot.time24);
+  if (hasHHMM) {
+    const [h, m] = slot.time24!.split(":").map(Number);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const h12 = ((h + 11) % 12) + 1;
+    return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+  }
+  if (slot.iso) {
     return new Date(slot.iso).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
   }
+  return "—"; // ultimate fallback
+}
 
   return (
     <LayoutWrapper>
       {/* selectors */}
-
       <div style={{ display: "grid", gap: 12, maxWidth: 620 }}>
         <div>
           <label style={label}>Service</label>
@@ -466,13 +506,16 @@ export default function BookingWizard({
             style={select}
           >
             <option value=''>Select groomer</option>
+            <option value={ANY_ID}>Any available groomer</option>
             {groomers.map((g) => (
               <option key={g.id} value={g.id}>
                 {g.name}
               </option>
             ))}
           </select>
-          {groomerId && selectedCal && (
+
+          {/* Helper text */}
+          {groomerId && groomerId !== ANY_ID && selectedCal && (
             <div style={helpText}>
               Select a date on:{" "}
               {selectedCal.workDays
@@ -484,6 +527,11 @@ export default function BookingWizard({
                 .join(", ")}
               {selectedCal.blackoutISO.length > 0 &&
                 " (some dates unavailable)"}
+            </div>
+          )}
+          {groomerId === ANY_ID && (
+            <div style={helpText}>
+              We’ll match you to the best available pro for your chosen time.
             </div>
           )}
         </div>
@@ -528,14 +576,16 @@ export default function BookingWizard({
         <>
           <h3 style={{ marginTop: 14, marginBottom: 8 }}>Available Times</h3>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {slots.map((s) => (
+            {slots.map((s, idx) => (
               <button
-                key={s.iso}
-                onClick={() => book(s.iso)}
+                key={`${s.iso ?? idx}-${s.groomerId ?? ""}`}
+                onClick={() => book(s.iso, s.groomerId)}
                 disabled={submitting}
                 style={{ ...slotBtn, opacity: submitting ? 0.6 : 1 }}
+                title={s.groomerName ? `With ${s.groomerName}` : undefined}
               >
                 {displayTime(s)}
+                {s.groomerName ? ` — ${s.groomerName}` : ""}
               </button>
             ))}
           </div>
