@@ -415,6 +415,22 @@ export default function BookingWizard({
     }
   }
 
+  function displayTime(slot: Slot) {
+    // Prefer the canonical 24h field if present:
+    if (slot.time24) {
+      const [h, m] = slot.time24.split(":").map(Number);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const h12 = ((h + 11) % 12) + 1;
+      return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+    }
+    // Fallback: derive from ISO
+    return new Date(slot.iso).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+
   return (
     <div>
       {/* selectors */}
@@ -518,7 +534,7 @@ export default function BookingWizard({
                 disabled={submitting}
                 style={{ ...slotBtn, opacity: submitting ? 0.6 : 1 }}
               >
-                {s.label}
+                {displayTime(s)}
               </button>
             ))}
           </div>

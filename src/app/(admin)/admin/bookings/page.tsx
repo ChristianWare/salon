@@ -117,9 +117,13 @@ export default async function BookingPage({
         skip: (page - 1) * pageSize,
         take: pageSize,
         include: {
-          user: true,
-          groomer: true,
-          service: true,
+          user: { select: { name: true, email: true } }, // customer
+          groomer: {
+            include: {
+              user: { select: { name: true, email: true } }, // <-- groomer name here
+            },
+          },
+          service: { select: { name: true } },
         },
       }),
       db.booking.count({ where }),
@@ -156,6 +160,8 @@ export default async function BookingPage({
       typeof s._count === "object" && s._count ? (s._count._all ?? 0) : 0,
     ])
   );
+
+  
 
   return (
     <section style={{ padding: "2rem" }}>
@@ -322,6 +328,14 @@ export default async function BookingPage({
                 order={order}
               />
               <th style={th}>Time</th>
+              {/* NEW: Booked (createdAt) sortable column */}
+              <Th
+                sp={sp}
+                label='Booked'
+                sortKey='createdAt'
+                sort={sort}
+                order={order}
+              />
               <th style={th}>Customer</th>
               <th style={th}>Groomer</th>
               <th style={th}>Service</th>
@@ -339,7 +353,7 @@ export default async function BookingPage({
             {bookings.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   style={{ padding: 16, textAlign: "center", color: "#666" }}
                 >
                   No bookings match your filters.
@@ -348,17 +362,30 @@ export default async function BookingPage({
             ) : (
               bookings.map((b) => {
                 const dt = new Date(b.start);
+                const created = new Date(b.createdAt);
+
                 const date = dateFmt.format(dt);
                 const time = timeFmt.format(dt);
+                const bookedDate = dateFmt.format(created);
+                const bookedTime = timeFmt.format(created);
+
                 const customer = b.user?.name || b.user?.email || "—";
-                const groomer = b.groomer?.id || "—";
+                // const groomer = b.groomer?.id || "—";
                 const service = b.service?.name || "—";
+
+                const groomerName =
+                  b.groomer?.user?.name || b.groomer?.user?.email || "—";
                 return (
                   <tr key={b.id} style={{ borderTop: "1px solid #eee" }}>
                     <td style={td}>{date}</td>
                     <td style={td}>{time}</td>
+                    {/* NEW: createdAt cell */}
+                    <td style={td}>
+                      {bookedDate}{" "}
+                      <small style={{ color: "#666" }}>{bookedTime}</small>
+                    </td>
                     <td style={td}>{customer}</td>
-                    <td style={td}>{groomer}</td>
+                    <td style={td}>{groomerName}</td>
                     <td style={td}>{service}</td>
                     <td style={td}>
                       <StatusBadge status={b.status as any} />

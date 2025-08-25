@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
@@ -152,7 +154,11 @@ export default async function GroomerDashboardPage() {
         start: { gte: new Date() },
         status: { in: ["PENDING", "CONFIRMED"] },
       },
-      include: {
+      select: {
+        id: true,
+        start: true,
+        createdAt: true, // ← add this
+        status: true,
         service: { select: { name: true, durationMin: true } },
         user: { select: { name: true, email: true } },
       },
@@ -274,6 +280,7 @@ export default async function GroomerDashboardPage() {
               <tr>
                 <th style={th}>Date</th>
                 <th style={th}>Time</th>
+                <th style={th}>Booked</th>
                 <th style={th}>Customer</th>
                 <th style={th}>Service</th>
                 <th style={th}>Status</th>
@@ -283,7 +290,7 @@ export default async function GroomerDashboardPage() {
               {nextBookings.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     style={{ padding: 16, textAlign: "center", color: "#666" }}
                   >
                     You have no upcoming appointments.
@@ -294,8 +301,15 @@ export default async function GroomerDashboardPage() {
                   const d = new Date(b.start);
                   return (
                     <tr key={b.id} style={{ borderTop: "1px solid #eee" }}>
-                      <td style={td}>{dateFmt.format(d)}</td>
-                      <td style={td}>{timeFmt.format(d)}</td>
+                      <td style={td}>{dateFmt.format(new Date(b.start))}</td>
+                      <td style={td}>{timeFmt.format(new Date(b.start))}</td>
+                      <td style={td}>
+                        {/* Booked on */}
+                        {dateFmt.format(new Date(b.createdAt))}{" "}
+                        <small style={{ color: "#666" }}>
+                          {timeFmt.format(new Date(b.createdAt))}
+                        </small>
+                      </td>
                       <td style={td}>{b.user?.name ?? "—"}</td>
                       <td style={td}>
                         {b.service?.name ?? "—"}
@@ -304,9 +318,8 @@ export default async function GroomerDashboardPage() {
                         ) : null}
                       </td>
                       <td style={td}>
-                        <span style={statusPill("CONFIRMED")}>
-                          {/** list is PENDING|CONFIRMED per query; could fetch b.status if you include it */}
-                          CONFIRMED
+                        <span style={statusPill(b.status as any)}>
+                          {b.status}
                         </span>
                       </td>
                     </tr>

@@ -13,6 +13,20 @@ type SearchParamsPromise = Promise<{
 
 export const dynamic = "force-dynamic";
 
+/* timezone formatters (match other pages) */
+const TZ = process.env.SALON_TZ ?? "America/Phoenix";
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  timeZone: TZ,
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+});
+const timeFmt = new Intl.DateTimeFormat("en-US", {
+  timeZone: TZ,
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
 /* ──────────────────────────────────────────────────────────
    Server Action: set booking status
 ────────────────────────────────────────────────────────── */
@@ -50,7 +64,7 @@ export default async function MyBookingsPage({
 }) {
   const user = await requireGroomer();
 
-  // 👇 Next 15: searchParams is async
+  // Next 15: searchParams is async
   const sp = await searchParams;
   const filterParam = Array.isArray(sp?.filter) ? sp?.filter[0] : sp?.filter;
   type Filter =
@@ -183,6 +197,8 @@ export default async function MyBookingsPage({
             <tr>
               <th style={th}>Date</th>
               <th style={th}>Time</th>
+              <th style={th}>Booked</th>
+              {/* ← NEW */}
               <th style={th}>Service</th>
               <th style={th}>Customer</th>
               <th style={th}>Status</th>
@@ -192,22 +208,19 @@ export default async function MyBookingsPage({
           <tbody>
             {bookings.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ padding: 12, textAlign: "center" }}>
+                <td colSpan={7} style={{ padding: 12, textAlign: "center" }}>
                   No bookings for this view.
                 </td>
               </tr>
             ) : (
               bookings.map((b) => {
                 const start = new Date(b.start);
-                const dateStr = start.toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                });
-                const timeStr = start.toLocaleTimeString(undefined, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                });
+                const created = new Date(b.createdAt);
+
+                const dateStr = dateFmt.format(start);
+                const timeStr = timeFmt.format(start);
+                const bookedDate = dateFmt.format(created);
+                const bookedTime = timeFmt.format(created);
 
                 const canConfirm = b.status === "PENDING";
                 const canCancel =
@@ -221,6 +234,10 @@ export default async function MyBookingsPage({
                   <tr key={b.id}>
                     <td style={td}>{dateStr}</td>
                     <td style={td}>{timeStr}</td>
+                    <td style={td}>
+                      {bookedDate}{" "}
+                      <small style={{ color: "#666" }}>{bookedTime}</small>
+                    </td>
                     <td style={td}>
                       {b.service.name} <small>({b.service.durationMin}m)</small>
                     </td>
