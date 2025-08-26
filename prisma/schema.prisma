@@ -30,7 +30,9 @@ model User {
     Booking Booking[]
     Session Session[]
 
-    // One-to-one to Groomer (shared PK)
+    // NEW: persist Stripe customer id for reuse
+    stripeCustomerId String? @unique
+
     groomer Groomer? @relation("UserGroomer")
 }
 
@@ -96,6 +98,10 @@ model Service {
     priceCents  Int
     active      Boolean @default(true)
 
+    // NEW (optional): server-side pricing knobs
+    depositPct Float? // e.g. 0.20 -> 20% deposit
+    taxRate    Float? // e.g. 0.086 -> 8.6% tax
+
     bookings Booking[]
 }
 
@@ -150,15 +156,29 @@ model Booking {
     start DateTime
     end   DateTime
 
-    depositCents    Int
-    tipCents        Int     @default(0)
-    paymentIntentId String?
+    depositCents Int
+    tipCents     Int @default(0)
+
+    amountDueCents Int?
+    taxCents       Int?
+
+    paymentIntentId String? @unique
     receiptUrl      String?
+
+    expiresAt DateTime?
+
+    notes   String?
+    petJson Json?
 
     status BookingStatus @default(PENDING)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    // Optional: prevent exact same-start double-bookings
+    // @@unique([groomerId, start])
+
+    @@index([groomerId, start, end])
+    @@index([status])
 }
 
 model Config {
@@ -184,6 +204,8 @@ enum UserRole {
 }
 
 enum BookingStatus {
+    DRAFT // optional; you can skip this if you prefer PENDING_PAYMENT only
+    PENDING_PAYMENT // user is at checkout; slot is held
     PENDING
     CONFIRMED
     COMPLETED
