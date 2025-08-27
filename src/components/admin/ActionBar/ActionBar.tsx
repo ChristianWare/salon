@@ -1,14 +1,14 @@
-// app/(admin)/admin/bookings/_ActionBar.t
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/components/admin/ActionBar/ActionBar.tsx
 "use client";
 
 import { useTransition } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import {
-  cancelBookingSA,
   markCompletedSA,
   markNoShowSA,
-} from "../../../app/(admin)/admin/bookings/_actions";
+} from "@/app/(admin)/admin/bookings/_actions";
 
 export default function ActionBar({
   bookingId,
@@ -22,42 +22,63 @@ export default function ActionBar({
   const router = useRouter();
   const [pending, start] = useTransition();
 
+  type ActionResult = { ok: boolean; error?: string };
+
   const handleCompleted = () =>
     start(async () => {
-      const res = await markCompletedSA(bookingId);
+      const res: ActionResult = await markCompletedSA(bookingId);
       if (res.ok) {
         toast.success("Marked completed");
         router.refresh();
       } else {
-        toast.error("Could not mark completed");
+        toast.error(res.error || "Could not mark completed");
       }
     });
 
   const handleNoShow = () =>
     start(async () => {
-      const res = await markNoShowSA(bookingId);
+      const res: ActionResult = await markNoShowSA(bookingId);
       if (res.ok) {
         toast.success("Marked no-show");
         router.refresh();
       } else {
-        toast.error("Could not mark no-show");
+        toast.error(res.error || "Could not mark no-show");
       }
     });
 
-  const onCancel = (formData: FormData) =>
+  // Admin-initiated cancel + refund through API route (so refund receipts are visible to both sides)
+  const handleAdminCancel = (formData: FormData) =>
     start(async () => {
-      const reason = String(formData.get("reason") || "");
-      const res = await cancelBookingSA(bookingId, reason);
-      if (res.ok) {
-        toast.success("Appointment canceled"); // ← your requested toast.success
-        router.refresh();
-      } else {
-        toast.error(res.error || "Could not cancel");
+      const reason = String(formData.get("reason") || "").trim();
+
+      try {
+        const res = await fetch("/api/book/cancel", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookingId, reason, actor: "admin" }),
+        });
+
+        const data: any = await res.json().catch(() => ({}));
+
+        if (res.ok && data?.ok) {
+          const msg =
+            typeof data.refunded === "number" && data.refunded > 0
+              ? "Appointment canceled & refunded"
+              : "Appointment canceled";
+          toast.success(msg);
+          router.refresh();
+        } else {
+          toast.error(data?.error || "Could not cancel");
+        }
+      } catch {
+        toast.error("Could not cancel");
       }
     });
 
   const isCompleted = status === "COMPLETED";
   const isNoShow = status === "NO_SHOW";
+
+  const cancelDisabled = isCanceled || isCompleted || isNoShow || pending;
 
   return (
     <>
@@ -108,8 +129,17 @@ export default function ActionBar({
           </span>
         ) : (
           <form
-            action={onCancel}
+            action={handleAdminCancel}
             style={{ display: "flex", gap: 8, alignItems: "center" }}
+            onSubmit={(e) => {
+              if (
+                !confirm(
+                  "Cancel this appointment and issue a refund for any captured amount?"
+                )
+              ) {
+                e.preventDefault();
+              }
+            }}
           >
             <input
               type='text'
@@ -117,8 +147,8 @@ export default function ActionBar({
               placeholder='Reason (optional)'
               style={{ ...input, width: 260 }}
             />
-            <button type='submit' style={dangerBtn} disabled={pending}>
-              Cancel Booking
+            <button type='submit' style={dangerBtn} disabled={cancelDisabled}>
+              {pending ? "Canceling…" : "Cancel Booking"}
             </button>
           </form>
         )}

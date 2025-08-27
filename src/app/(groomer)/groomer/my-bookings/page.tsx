@@ -198,7 +198,6 @@ export default async function MyBookingsPage({
               <th style={th}>Date</th>
               <th style={th}>Time</th>
               <th style={th}>Booked</th>
-              {/* ← NEW */}
               <th style={th}>Service</th>
               <th style={th}>Customer</th>
               <th style={th}>Status</th>
@@ -250,14 +249,33 @@ export default async function MyBookingsPage({
                       <StatusBadge status={b.status as BookingStatus} />
                     </td>
                     <td style={td}>
-                      <RowActions
-                        bookingId={b.id}
-                        onSetStatus={setBookingStatus}
-                        canConfirm={canConfirm}
-                        canCancel={canCancel}
-                        canComplete={canComplete}
-                        canNoShow={canNoShow}
-                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 8,
+                          flexWrap: "wrap",
+                          alignItems: "center",
+                        }}
+                      >
+                        {/* NEW: View button linking to details page */}
+                        <Link
+                          href={`/groomer/my-bookings/${b.id}`}
+                          style={outlineBtnSmall}
+                          title='View booking details'
+                        >
+                          View
+                        </Link>
+
+                        {/* Existing row actions (confirm/cancel/complete/no-show) */}
+                        <RowActions
+                          bookingId={b.id}
+                          onSetStatus={setBookingStatus}
+                          canConfirm={canConfirm}
+                          canCancel={canCancel}
+                          canComplete={canComplete}
+                          canNoShow={canNoShow}
+                        />
+                      </div>
                     </td>
                   </tr>
                 );
@@ -348,3 +366,15 @@ const th: React.CSSProperties = {
   background: "#fafafa",
 };
 const td: React.CSSProperties = { border: "1px solid #ddd", padding: 8 };
+
+/* NEW: compact outline button for inline table actions */
+const outlineBtnSmall: React.CSSProperties = {
+  padding: "6px 10px",
+  borderRadius: 6,
+  background: "white",
+  color: "#333",
+  border: "1px solid #ddd",
+  cursor: "pointer",
+  textDecoration: "none",
+  fontSize: 13,
+};

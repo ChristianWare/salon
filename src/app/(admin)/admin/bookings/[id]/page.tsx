@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/(admin)/admin/bookings/[id]/page.tsx
 import { redirect, notFound } from "next/navigation";
 import { auth } from "../../../../../../auth";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import ActionBar from "@/components/admin/ActionBar/ActionBar";
+import { stripe } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -16,7 +19,7 @@ export default async function BookingDetailsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params; // ⬅️ await params before using
+  const { id } = await params;
 
   // Admin guard
   const session = await auth();
@@ -37,7 +40,41 @@ export default async function BookingDetailsPage({
   });
   if (!booking) notFound();
 
-  // Formatters
+  // ── Pull refunds from Stripe (admin + user initiated) ────────────────
+  let refunds:
+    | {
+        id: string;
+        amount: number;
+        created: number;
+        status: string;
+        charge?: string | null;
+        currency?: string | null;
+        reason?: string | null;
+      }[]
+    | null = null;
+
+  if (booking.paymentIntentId) {
+    try {
+      const list = await stripe.refunds.list({
+        payment_intent: booking.paymentIntentId,
+        limit: 20,
+      });
+      refunds = list.data.map((r) => ({
+        id: r.id,
+        amount: r.amount,
+        created: r.created,
+        status: r.status ?? "unknown",
+        charge:
+          typeof r.charge === "string" ? r.charge : (r.charge?.id ?? null),
+        currency: r.currency ?? "usd",
+        reason: r.reason ?? null,
+      }));
+    } catch {
+      refunds = null; // hide refunds panel if Stripe call fails
+    }
+  }
+
+  // ── Formatters ───────────────────────────────────────────────────────
   const dateFmt = new Intl.DateTimeFormat("en-US", {
     timeZone: TZ,
     year: "numeric",
@@ -49,7 +86,10 @@ export default async function BookingDetailsPage({
     hour: "2-digit",
     minute: "2-digit",
   });
+  const fmt = (cents?: number | null) =>
+    typeof cents === "number" ? `$${(cents / 100).toFixed(2)}` : "—";
 
+  // ── Appointment times ────────────────────────────────────────────────
   const start = new Date(booking.start);
   const end = booking.end ? new Date(booking.end) : null;
 
@@ -62,6 +102,7 @@ export default async function BookingDetailsPage({
   const updatedDate = dateFmt.format(new Date(booking.updatedAt));
   const updatedTime = timeFmt.format(new Date(booking.updatedAt));
 
+  // ── People / service ────────────────────────────────────────────────
   const customer = booking.user?.name || booking.user?.email || "—";
   const customerEmail = booking.user?.email || null;
   const groomerName =
@@ -69,6 +110,35 @@ export default async function BookingDetailsPage({
   const serviceName = booking.service?.name || "—";
   const durationMin = booking.service?.durationMin ?? null;
 
+  // ── Payment breakdown (robust to missing fields) ─────────────────────
+  const basePriceCents = booking.service?.priceCents ?? null;
+  const depositCents = booking.depositCents ?? 0; // charged now before tax/fees
+  const taxCents = booking.taxCents ?? 0; // tax on what's charged now
+  const tipCents = booking.tipCents ?? 0; // tip charged now
+  // Optional: if you add this column later in your schema, it will appear automatically
+  const feeCents = (booking as any).feeCents ?? 0;
+
+  // If you persisted "amountDueCents" (typically deposit + tax), prefer it to reflect server authority
+  const amountDueCents = booking.amountDueCents ?? null;
+
+  // Subtotal charged now (pre-tax/fees): use explicit depositCents
+  const subtotalNowCents = depositCents;
+
+  // Total actually charged on the intent (today)
+  const totalChargedCents =
+    (typeof amountDueCents === "number"
+      ? amountDueCents // usually deposit + tax
+      : subtotalNowCents + taxCents) +
+    tipCents +
+    feeCents;
+
+  // Remaining balance hint (pre-tax): if using deposits
+  const remainingPreTax =
+    typeof basePriceCents === "number" && depositCents < basePriceCents
+      ? Math.max(0, basePriceCents - depositCents)
+      : 0;
+
+  // Old single value you had (kept for reference, now superseded by the breakdown)
   const priceCents =
     booking.amountDueCents != null
       ? booking.amountDueCents
@@ -79,6 +149,11 @@ export default async function BookingDetailsPage({
   const status = String(booking.status || "");
   const isCanceled = status === "CANCELED";
   const notes = booking.notes ?? null;
+
+  // Stripe dashboard mode helper for links
+  const stripeMode = (process.env.STRIPE_SECRET_KEY || "").includes("_test")
+    ? "test"
+    : "live";
 
   return (
     <section style={{ padding: "2rem" }}>
@@ -130,6 +205,7 @@ export default async function BookingDetailsPage({
           <div
             style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
           >
+            {/* Appointment */}
             <div>
               <div style={sectionTitle}>Appointment</div>
               <Row label='Date' value={startDate} />
@@ -144,6 +220,7 @@ export default async function BookingDetailsPage({
               <Row label='Status' value={<StatusBadge status={status} />} />
             </div>
 
+            {/* Booked */}
             <div>
               <div style={sectionTitle}>Booked</div>
               <Row label='Booked On' value={`${createdDate} ${createdTime}`} />
@@ -153,6 +230,7 @@ export default async function BookingDetailsPage({
               />
             </div>
 
+            {/* Customer */}
             <div>
               <div style={sectionTitle}>Customer</div>
               <Row label='Name / Email' value={customer} />
@@ -171,15 +249,70 @@ export default async function BookingDetailsPage({
               ) : null}
             </div>
 
+            {/* Groomer */}
             <div>
               <div style={sectionTitle}>Groomer</div>
               <Row label='Assigned To' value={groomerName} />
             </div>
 
+            {/* Service */}
             <div>
               <div style={sectionTitle}>Service</div>
               <Row label='Service' value={serviceName} />
-              <Row label='Amount (paid/charge)' value={price} />
+              {typeof basePriceCents === "number" ? (
+                <Row label='Service Price' value={fmt(basePriceCents)} />
+              ) : null}
+
+              {/* Payment breakdown */}
+              <div style={{ ...sectionTitle, marginTop: 10 }}>
+                Payment Breakdown
+              </div>
+              {/* Subtotal/Deposit */}
+              <Row
+                label={
+                  typeof basePriceCents === "number" &&
+                  depositCents < basePriceCents
+                    ? "Deposit (charged today)"
+                    : "Subtotal (charged today)"
+                }
+                value={fmt(subtotalNowCents)}
+              />
+              {/* Tax */}
+              {taxCents > 0 && <Row label='Tax' value={fmt(taxCents)} />}
+              {/* Tip */}
+              {tipCents > 0 && <Row label='Tip' value={fmt(tipCents)} />}
+              {/* Fees (optional) */}
+              {feeCents > 0 && <Row label='Fees' value={fmt(feeCents)} />}
+
+              {/* Total charged */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "140px 1fr",
+                  gap: 8,
+                  padding: "6px 0",
+                  borderTop: "1px solid #f5f5f5",
+                  marginTop: 6,
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ fontSize: 12, color: "#111", fontWeight: 600 }}>
+                  Total Charged Today
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>
+                  {fmt(totalChargedCents)}
+                </div>
+              </div>
+
+              {/* Remaining balance (pre-tax) if applicable */}
+              {remainingPreTax > 0 && (
+                <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                  Remaining service balance (pre-tax):{" "}
+                  <strong>{fmt(remainingPreTax)}</strong> due at appointment.
+                </div>
+              )}
+
+              {/* Technical payment refs */}
               {booking.paymentIntentId ? (
                 <Row
                   label='Payment Intent'
@@ -188,7 +321,7 @@ export default async function BookingDetailsPage({
               ) : null}
               {booking.receiptUrl ? (
                 <Row
-                  label='Receipt'
+                  label='Payment Receipt'
                   value={
                     <a
                       href={booking.receiptUrl}
@@ -196,13 +329,79 @@ export default async function BookingDetailsPage({
                       rel='noreferrer'
                       style={{ color: "#0969da", textDecoration: "none" }}
                     >
-                      View receipt
+                      View payment receipt
                     </a>
                   }
                 />
               ) : null}
             </div>
 
+            {/* Refunds */}
+            {refunds && refunds.length > 0 && (
+              <div>
+                <div style={sectionTitle}>Refunds</div>
+                <div>
+                  {refunds.map((r) => {
+                    const dt = new Date(r.created * 1000);
+                    const date = dateFmt.format(dt);
+                    const time = timeFmt.format(dt);
+                    const amount = (r.amount / 100).toFixed(2);
+                    const dashUrl = `https://dashboard.stripe.com/${
+                      stripeMode === "test" ? "test/" : ""
+                    }refunds/${r.id}`;
+                    return (
+                      <div
+                        key={r.id}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "140px 1fr",
+                          gap: 8,
+                          padding: "6px 0",
+                          borderBottom: "1px solid #f5f5f5",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div style={{ fontSize: 12, color: "#666" }}>
+                          Refunded
+                        </div>
+                        <div style={{ fontSize: 14 }}>
+                          ${amount} • {r.status}
+                          {r.reason ? ` • ${r.reason}` : ""}
+                          <div style={{ fontSize: 12, color: "#666" }}>
+                            {date} {time}
+                          </div>
+                          <div style={{ marginTop: 4 }}>
+                            <a
+                              href={dashUrl}
+                              target='_blank'
+                              rel='noreferrer'
+                              style={{ color: "#0969da" }}
+                            >
+                              View in Stripe
+                            </a>{" "}
+                            •{" "}
+                            <Link
+                              href={`/receipt/refund/${r.id}`}
+                              style={{ color: "#0969da" }}
+                            >
+                              Public refund receipt
+                            </Link>
+                            {r.charge ? (
+                              <>
+                                {" "}
+                                • Charge: <Mono>{r.charge}</Mono>
+                              </>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Notes */}
             <div>
               <div style={sectionTitle}>Notes</div>
               <div
@@ -217,6 +416,7 @@ export default async function BookingDetailsPage({
               </div>
             </div>
 
+            {/* Technical */}
             <div>
               <div style={sectionTitle}>Technical</div>
               <Row label='Booking ID' value={<Mono>{booking.id}</Mono>} />
@@ -233,7 +433,7 @@ export default async function BookingDetailsPage({
           </div>
         </div>
 
-        {/* Actions (client) */}
+        {/* Actions */}
         <div style={cardSoft}>
           <div
             style={{

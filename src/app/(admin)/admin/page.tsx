@@ -46,7 +46,7 @@ export default async function AdminPage() {
     db.booking.count(),
     // Registered users
     db.user.count({ where: { role: "USER" } }),
-    // Bookings waiting (future). You might have old data using PENDING.
+    // Bookings waiting (future)
     db.booking.count({
       where: {
         status: "PENDING",
@@ -76,7 +76,7 @@ export default async function AdminPage() {
     take: 10,
   });
 
-  // NEW: Bookings created today (shows "what came in" today)
+  // New Bookings created today
   const newBookings = await db.booking.findMany({
     where: { createdAt: { gte: todayStart, lte: todayEnd } },
     include: {
@@ -88,7 +88,7 @@ export default async function AdminPage() {
     take: 10,
   });
 
-  // NEW: Upcoming bookings (beyond today, next 2 weeks)
+  // Upcoming bookings (next 2 weeks)
   const upcomingBookings = await db.booking.findMany({
     where: {
       start: { gt: todayEnd, lte: upcomingEnd },
@@ -103,7 +103,7 @@ export default async function AdminPage() {
     take: 10,
   });
 
-  // NEW (optional): Active payment holds that haven't expired yet
+  // Active payment holds that haven't expired yet (optional)
   const activeHolds = await db.booking.findMany({
     where: {
       status: "PENDING_PAYMENT",
@@ -117,7 +117,7 @@ export default async function AdminPage() {
     take: 10,
   });
 
-  // Pending approvals (if any exist; otherwise it’ll be an empty list)
+  // Pending approvals
   const pendingList = await db.booking.findMany({
     where: { status: "PENDING", start: { gte: now } },
     include: {
@@ -129,8 +129,7 @@ export default async function AdminPage() {
     take: 10,
   });
 
-  // Groomers needing attention:
-  // - inactive OR no working hours on any day
+  // Groomers needing attention
   const groomersNeedingAttention = await db.groomer.findMany({
     where: {
       OR: [{ active: false }],
@@ -179,14 +178,14 @@ export default async function AdminPage() {
           <AdminKpiCard label='Registered Users' value={totalUsers} />
         </div>
 
-        {/* KPI Row 2 (optional but useful) */}
+        {/* KPI Row 2 */}
         <div className={styles.kpiCards} style={{ marginTop: 12 }}>
           <AdminKpiCard label='Pending Bookings' value={pendingBookings} />
           <AdminKpiCard label='Active Groomers' value={activeGroomers} />
           <AdminKpiCard label='Active Services' value={activeServices} />
         </div>
 
-        {/* NEW: New Bookings created today */}
+        {/* New Bookings created today */}
         <h2 className={styles.heading}>New Bookings (Created Today)</h2>
         <div style={{ overflowX: "auto", marginBottom: 24 }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -198,12 +197,13 @@ export default async function AdminPage() {
                 <TH>Customer</TH>
                 <TH>Groomer</TH>
                 <TH>Status</TH>
+                <TH>Actions</TH>
               </tr>
             </thead>
             <tbody>
               {newBookings.length === 0 ? (
                 <tr>
-                  <TD colSpan={6} style={{ textAlign: "center" }}>
+                  <TD colSpan={7} style={{ textAlign: "center" }}>
                     No new bookings today.
                   </TD>
                 </tr>
@@ -238,6 +238,13 @@ export default async function AdminPage() {
                       <TD>
                         <StatusBadge status={b.status} />
                       </TD>
+                      <TD>
+                        <Button
+                          href={`/admin/bookings/${b.id}`}
+                          btnType='blueOutline'
+                          text='View'
+                        />
+                      </TD>
                     </tr>
                   );
                 })
@@ -246,7 +253,7 @@ export default async function AdminPage() {
           </table>
         </div>
 
-        {/* Existing Today’s Schedule */}
+        {/* Today’s Schedule */}
         <h2 className={styles.heading}>Today’s Schedule</h2>
         <div style={{ overflowX: "auto", marginBottom: 24 }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -257,12 +264,13 @@ export default async function AdminPage() {
                 <TH>Customer</TH>
                 <TH>Groomer</TH>
                 <TH>Status</TH>
+                <TH>Actions</TH>
               </tr>
             </thead>
             <tbody>
               {todaysBookings.length === 0 ? (
                 <tr>
-                  <TD colSpan={5} style={{ textAlign: "center" }}>
+                  <TD colSpan={6} style={{ textAlign: "center" }}>
                     No bookings today.
                   </TD>
                 </tr>
@@ -289,6 +297,13 @@ export default async function AdminPage() {
                       <TD>
                         <StatusBadge status={b.status} />
                       </TD>
+                      <TD>
+                        <Button
+                          href={`/admin/bookings/${b.id}`}
+                          btnType='blueOutline'
+                          text='View'
+                        />
+                      </TD>
                     </tr>
                   );
                 })
@@ -297,7 +312,7 @@ export default async function AdminPage() {
           </table>
         </div>
 
-        {/* NEW: Upcoming Bookings */}
+        {/* Upcoming Bookings */}
         <h2 className={styles.heading}>Upcoming Bookings (Next 2 Weeks)</h2>
         <div style={{ overflowX: "auto", marginBottom: 24 }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -309,12 +324,13 @@ export default async function AdminPage() {
                 <TH>Customer</TH>
                 <TH>Groomer</TH>
                 <TH>Status</TH>
+                <TH>Actions</TH>
               </tr>
             </thead>
             <tbody>
               {upcomingBookings.length === 0 ? (
                 <tr>
-                  <TD colSpan={6} style={{ textAlign: "center" }}>
+                  <TD colSpan={7} style={{ textAlign: "center" }}>
                     No upcoming bookings in the next two weeks.
                   </TD>
                 </tr>
@@ -347,6 +363,13 @@ export default async function AdminPage() {
                       <TD>
                         <StatusBadge status={b.status} />
                       </TD>
+                      <TD>
+                        <Button
+                          href={`/admin/bookings/${b.id}`}
+                          btnType='blueOutline'
+                          text='View'
+                        />
+                      </TD>
                     </tr>
                   );
                 })
@@ -355,7 +378,7 @@ export default async function AdminPage() {
           </table>
         </div>
 
-        {/* Only render Pending Approvals section if you still have some in DB */}
+        {/* Pending Approvals */}
         {pendingBookings > 0 && (
           <>
             <h2 className={styles.heading}>Pending Approvals</h2>
@@ -368,12 +391,13 @@ export default async function AdminPage() {
                     <TH>Service</TH>
                     <TH>Customer</TH>
                     <TH>Groomer</TH>
+                    <TH>Actions</TH>
                   </tr>
                 </thead>
                 <tbody>
                   {pendingList.length === 0 ? (
                     <tr>
-                      <TD colSpan={5} style={{ textAlign: "center" }}>
+                      <TD colSpan={6} style={{ textAlign: "center" }}>
                         All clear.
                       </TD>
                     </tr>
@@ -400,6 +424,13 @@ export default async function AdminPage() {
                             <small>{b.user.email}</small>
                           </TD>
                           <TD>{b.groomer.user?.name ?? "—"}</TD>
+                          <TD>
+                            <Button
+                              href={`/admin/bookings/${b.id}`}
+                              btnType='blueOutline'
+                              text='View'
+                            />
+                          </TD>
                         </tr>
                       );
                     })
@@ -410,7 +441,7 @@ export default async function AdminPage() {
           </>
         )}
 
-        {/* NEW (optional): Active Payment Holds */}
+        {/* Active Payment Holds (optional) */}
         {activeHolds.length > 0 && (
           <>
             <h2 className={styles.heading}>Active Payment Holds</h2>
@@ -422,6 +453,7 @@ export default async function AdminPage() {
                     <TH>Expires</TH>
                     <TH>Customer</TH>
                     <TH>Service</TH>
+                    <TH>Actions</TH>
                   </tr>
                 </thead>
                 <tbody>
@@ -450,6 +482,13 @@ export default async function AdminPage() {
                           <small>{b.user?.email ?? "—"}</small>
                         </TD>
                         <TD>{b.service?.name ?? "—"}</TD>
+                        <TD>
+                          <Button
+                            href={`/admin/bookings/${b.id}`}
+                            btnType='blueOutline'
+                            text='View'
+                          />
+                        </TD>
                       </tr>
                     );
                   })}

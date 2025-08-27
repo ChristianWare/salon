@@ -11,7 +11,7 @@ export const revalidate = 0;
 const BASE_PATH = "/dashboard";
 const TZ = process.env.SALON_TZ ?? "America/Phoenix";
 
-/* ───────────────── Server Action: cancel booking ───────────────── */
+/* ───────────────── Server Action: cancel booking (kept for compatibility) ───────────────── */
 export async function cancelBooking(formData: FormData) {
   "use server";
   const session = await auth();
@@ -128,6 +128,9 @@ export default async function DashboardPageIntro() {
           <Link href='/account' style={outlineBtn}>
             Profile & Settings
           </Link>
+          <Link href='/dashboard/my-bookings' style={outlineBtn}>
+            My Bookings
+          </Link>
           {session.user.role === "ADMIN" && (
             <Link href='/admin' style={outlineBtn}>
               Admin Panel
@@ -174,7 +177,14 @@ export default async function DashboardPageIntro() {
             {next ? "Your Next Appointment" : "No Upcoming Appointments"}
           </div>
           {next && (
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {/* NEW: View Details button */}
+              <Link
+                href={`/dashboard/my-bookings/${next.id}`}
+                style={outlineBtn}
+              >
+                View Details
+              </Link>
               <CancelBookingForm bookingId={next.id} />
             </div>
           )}
@@ -264,7 +274,15 @@ export default async function DashboardPageIntro() {
                   <tr key={b.id} style={{ borderTop: "1px solid #eee" }}>
                     <td style={td}>{date}</td>
                     <td style={td}>{time}</td>
-                    <td style={td}>{b.service?.name ?? "—"}</td>
+                    <td style={td}>
+                      {b.service?.name ?? "—"}
+                      {b.service?.durationMin ? (
+                        <>
+                          {" "}
+                          <small>({b.service.durationMin}m)</small>
+                        </>
+                      ) : null}
+                    </td>
                     <td style={td}>
                       {b.groomer?.user?.name ?? b.groomer?.user?.email ?? "—"}
                     </td>
@@ -274,11 +292,22 @@ export default async function DashboardPageIntro() {
                       </span>
                     </td>
                     <td style={td}>
-                      {canCancel ? (
-                        <CancelBookingForm bookingId={b.id} />
-                      ) : (
-                        <span style={{ color: "#666" }}>—</span>
-                      )}
+                      <div
+                        style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+                      >
+                        {/* NEW: View button */}
+                        <Link
+                          href={`/dashboard/my-bookings/${b.id}`}
+                          style={outlineBtnSmall}
+                        >
+                          View
+                        </Link>
+                        {canCancel ? (
+                          <CancelBookingForm bookingId={b.id} />
+                        ) : (
+                          <span style={{ color: "#666" }}>—</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -361,6 +390,18 @@ const outlineBtn: React.CSSProperties = {
   cursor: "pointer",
   textDecoration: "none",
 };
+/* NEW: smaller outline button for table actions */
+const outlineBtnSmall: React.CSSProperties = {
+  padding: "6px 10px",
+  borderRadius: 6,
+  background: "white",
+  color: "#333",
+  border: "1px solid #ddd",
+  cursor: "pointer",
+  textDecoration: "none",
+  fontSize: 13,
+};
+
 const th: React.CSSProperties = {
   borderBottom: "1px solid #e5e5e5",
   padding: 10,

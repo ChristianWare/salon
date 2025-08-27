@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -157,7 +156,7 @@ export default async function GroomerDashboardPage() {
       select: {
         id: true,
         start: true,
-        createdAt: true, // ← add this
+        createdAt: true,
         status: true,
         service: { select: { name: true, durationMin: true } },
         user: { select: { name: true, email: true } },
@@ -284,13 +283,15 @@ export default async function GroomerDashboardPage() {
                 <th style={th}>Customer</th>
                 <th style={th}>Service</th>
                 <th style={th}>Status</th>
+                {/* NEW: Actions column */}
+                <th style={th}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {nextBookings.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     style={{ padding: 16, textAlign: "center", color: "#666" }}
                   >
                     You have no upcoming appointments.
@@ -298,13 +299,11 @@ export default async function GroomerDashboardPage() {
                 </tr>
               ) : (
                 nextBookings.map((b) => {
-                  const d = new Date(b.start);
                   return (
                     <tr key={b.id} style={{ borderTop: "1px solid #eee" }}>
                       <td style={td}>{dateFmt.format(new Date(b.start))}</td>
                       <td style={td}>{timeFmt.format(new Date(b.start))}</td>
                       <td style={td}>
-                        {/* Booked on */}
                         {dateFmt.format(new Date(b.createdAt))}{" "}
                         <small style={{ color: "#666" }}>
                           {timeFmt.format(new Date(b.createdAt))}
@@ -321,6 +320,16 @@ export default async function GroomerDashboardPage() {
                         <span style={statusPill(b.status as any)}>
                           {b.status}
                         </span>
+                      </td>
+                      {/* NEW: View button to details page */}
+                      <td style={td}>
+                        <Link
+                          href={`/groomer/my-bookings/${b.id}`}
+                          style={outlineBtnSmall}
+                          title='View booking details'
+                        >
+                          View
+                        </Link>
                       </td>
                     </tr>
                   );
@@ -515,6 +524,17 @@ const outlineBtn: React.CSSProperties = {
   border: "1px solid #ddd",
   cursor: "pointer",
   textDecoration: "none",
+};
+/* NEW: smaller outline button for table actions */
+const outlineBtnSmall: React.CSSProperties = {
+  padding: "6px 10px",
+  borderRadius: 6,
+  background: "white",
+  color: "#333",
+  border: "1px solid #ddd",
+  cursor: "pointer",
+  textDecoration: "none",
+  fontSize: 13,
 };
 const th: React.CSSProperties = {
   borderBottom: "1px solid #e5e5e5",

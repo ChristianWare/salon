@@ -310,11 +310,26 @@ export default async function MyBookingsPage({
                       </span>
                     </td>
                     <td style={td}>
-                      {canCancel ? (
-                        <CancelBookingForm bookingId={b.id} />
-                      ) : (
-                        <span style={{ color: "#666" }}>—</span>
-                      )}
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 8,
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <Link
+                          href={`${BASE_PATH}/${b.id}`}
+                          style={{ color: "#0969da", textDecoration: "none" }}
+                        >
+                          View
+                        </Link>
+                        {canCancel ? (
+                          <CancelBookingForm bookingId={b.id} />
+                        ) : (
+                          <span style={{ color: "#666" }}>—</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
