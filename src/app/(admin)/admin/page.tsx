@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 import AdminPageIntro from "@/components/admin/AdminPageIntro/AdminPageIntro";
 import AdminKpiCard from "@/components/admin/AdminKpiCard/AdminKpiCard";
 import Button from "@/components/shared/Button/Button";
-import { startOfDay, endOfDay, startOfMonth } from "date-fns";
+import { startOfDay, endOfDay, startOfMonth, addDays } from "date-fns";
 
 export default async function AdminPage() {
   // 1) Enforce ADMIN only
@@ -21,6 +21,7 @@ export default async function AdminPage() {
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
   const monthStart = startOfMonth(now);
+  const upcomingEnd = addDays(now, 14); // next 2 weeks
 
   // 3) KPIs
   const [
@@ -75,6 +76,47 @@ export default async function AdminPage() {
     take: 10,
   });
 
+  // NEW: Bookings created today (shows "what came in" today)
+  const newBookings = await db.booking.findMany({
+    where: { createdAt: { gte: todayStart, lte: todayEnd } },
+    include: {
+      service: { select: { name: true, durationMin: true, priceCents: true } },
+      user: { select: { name: true, email: true } },
+      groomer: { select: { user: { select: { name: true } } } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+  });
+
+  // NEW: Upcoming bookings (beyond today, next 2 weeks)
+  const upcomingBookings = await db.booking.findMany({
+    where: {
+      start: { gt: todayEnd, lte: upcomingEnd },
+      status: { in: ["CONFIRMED", "PENDING"] },
+    },
+    include: {
+      service: { select: { name: true, durationMin: true } },
+      user: { select: { name: true, email: true } },
+      groomer: { select: { user: { select: { name: true } } } },
+    },
+    orderBy: { start: "asc" },
+    take: 10,
+  });
+
+  // NEW (optional): Active payment holds that haven't expired yet
+  const activeHolds = await db.booking.findMany({
+    where: {
+      status: "PENDING_PAYMENT",
+      expiresAt: { gt: now },
+    },
+    include: {
+      service: { select: { name: true } },
+      user: { select: { name: true, email: true } },
+    },
+    orderBy: { expiresAt: "asc" },
+    take: 10,
+  });
+
   // Pending approvals (if any exist; otherwise it’ll be an empty list)
   const pendingList = await db.booking.findMany({
     where: { status: "PENDING", start: { gte: now } },
@@ -91,11 +133,7 @@ export default async function AdminPage() {
   // - inactive OR no working hours on any day
   const groomersNeedingAttention = await db.groomer.findMany({
     where: {
-      OR: [
-        { active: false },
-        // "no working hours": any day array is empty or workingHours is missing
-        // We'll filter in JS since JSON structure can vary.
-      ],
+      OR: [{ active: false }],
     },
     include: { user: { select: { name: true, email: true } } },
     take: 50,
@@ -148,6 +186,67 @@ export default async function AdminPage() {
           <AdminKpiCard label='Active Services' value={activeServices} />
         </div>
 
+        {/* NEW: New Bookings created today */}
+        <h2 className={styles.heading}>New Bookings (Created Today)</h2>
+        <div style={{ overflowX: "auto", marginBottom: 24 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <TH>Booked At</TH>
+                <TH>Start</TH>
+                <TH>Service</TH>
+                <TH>Customer</TH>
+                <TH>Groomer</TH>
+                <TH>Status</TH>
+              </tr>
+            </thead>
+            <tbody>
+              {newBookings.length === 0 ? (
+                <tr>
+                  <TD colSpan={6} style={{ textAlign: "center" }}>
+                    No new bookings today.
+                  </TD>
+                </tr>
+              ) : (
+                newBookings.map((b) => {
+                  const createdStr = new Date(b.createdAt).toLocaleString([], {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  const startStr = new Date(b.start).toLocaleString([], {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  return (
+                    <tr key={b.id}>
+                      <TD>{createdStr}</TD>
+                      <TD>{startStr}</TD>
+                      <TD>
+                        {b.service.name}{" "}
+                        <small>({b.service.durationMin}m)</small>
+                      </TD>
+                      <TD>
+                        {b.user.name ?? "—"}
+                        <br />
+                        <small>{b.user.email}</small>
+                      </TD>
+                      <TD>{b.groomer.user?.name ?? "—"}</TD>
+                      <TD>
+                        <StatusBadge status={b.status} />
+                      </TD>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Existing Today’s Schedule */}
         <h2 className={styles.heading}>Today’s Schedule</h2>
         <div style={{ overflowX: "auto", marginBottom: 24 }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -176,6 +275,64 @@ export default async function AdminPage() {
                   });
                   return (
                     <tr key={b.id}>
+                      <TD>{timeStr}</TD>
+                      <TD>
+                        {b.service.name}{" "}
+                        <small>({b.service.durationMin}m)</small>
+                      </TD>
+                      <TD>
+                        {b.user.name ?? "—"}
+                        <br />
+                        <small>{b.user.email}</small>
+                      </TD>
+                      <TD>{b.groomer.user?.name ?? "—"}</TD>
+                      <TD>
+                        <StatusBadge status={b.status} />
+                      </TD>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* NEW: Upcoming Bookings */}
+        <h2 className={styles.heading}>Upcoming Bookings (Next 2 Weeks)</h2>
+        <div style={{ overflowX: "auto", marginBottom: 24 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <TH>Date</TH>
+                <TH>Time</TH>
+                <TH>Service</TH>
+                <TH>Customer</TH>
+                <TH>Groomer</TH>
+                <TH>Status</TH>
+              </tr>
+            </thead>
+            <tbody>
+              {upcomingBookings.length === 0 ? (
+                <tr>
+                  <TD colSpan={6} style={{ textAlign: "center" }}>
+                    No upcoming bookings in the next two weeks.
+                  </TD>
+                </tr>
+              ) : (
+                upcomingBookings.map((b) => {
+                  const d = new Date(b.start);
+                  const dateStr = d.toLocaleDateString([], {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  });
+                  const timeStr = d.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  return (
+                    <tr key={b.id}>
+                      <TD>{dateStr}</TD>
                       <TD>{timeStr}</TD>
                       <TD>
                         {b.service.name}{" "}
@@ -247,6 +404,55 @@ export default async function AdminPage() {
                       );
                     })
                   )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {/* NEW (optional): Active Payment Holds */}
+        {activeHolds.length > 0 && (
+          <>
+            <h2 className={styles.heading}>Active Payment Holds</h2>
+            <div style={{ overflowX: "auto", marginBottom: 24 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <TH>Created</TH>
+                    <TH>Expires</TH>
+                    <TH>Customer</TH>
+                    <TH>Service</TH>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeHolds.map((b) => {
+                    const created = new Date(b.createdAt).toLocaleString([], {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                    const expires = b.expiresAt
+                      ? new Date(b.expiresAt).toLocaleString([], {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "—";
+                    return (
+                      <tr key={b.id}>
+                        <TD>{created}</TD>
+                        <TD>{expires}</TD>
+                        <TD>
+                          {b.user?.name ?? "—"}
+                          <br />
+                          <small>{b.user?.email ?? "—"}</small>
+                        </TD>
+                        <TD>{b.service?.name ?? "—"}</TD>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -379,7 +585,7 @@ function StatusBadge({ status }: { status: string }) {
           ? "#0366d6"
           : status === "CANCELED"
             ? "#999"
-            : "#b33636"; // NO_SHOW
+            : "#b33636"; // NO_SHOW or anything else
   return (
     <span
       style={{

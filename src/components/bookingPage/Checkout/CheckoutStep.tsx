@@ -24,10 +24,10 @@ type CheckoutStepProps = {
   amountDueCents?: number;
 
   // optional breakdown (pass these if you have them)
-  basePriceCents?: number; // the service's full price before tax/fees/discounts
-  depositCents?: number; // portion to charge now before tax (if using deposits)
-  taxCents?: number; // tax applied to what's charged now
-  feeCents?: number; // any processing/booking fee charged now
+  basePriceCents?: number; // full service price (pre-tax/fees/discounts)
+  depositCents?: number; // charged now before tax if using deposits
+  taxCents?: number; // tax charged now
+  feeCents?: number; // fees charged now
   discountCents?: number; // discount applied now (positive number; will be subtracted)
 
   // summary labels
@@ -50,11 +50,15 @@ const stripePromise: Promise<Stripe | null> = PK
   ? loadStripe(PK)
   : Promise.resolve(null);
 
-/** Format helper */
+/** Helpers */
 function fmt(cents?: number) {
   if (typeof cents !== "number") return "—";
   return `$${(cents / 100).toFixed(2)}`;
 }
+const clamp = (n: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, n));
+const toCents = (val: string) =>
+  Math.round(clamp(parseFloat(val || "0"), 0, 1_000_000) * 100);
 
 /** ─────────────────────────────────────────────────────────
  *  Outer wrapper (provides <Elements>)
@@ -113,10 +117,13 @@ function CheckoutInner({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
 
-  /** Compute a clean breakdown safely */
+  // Tip state
+  const [tipCents, setTipCents] = useState<number>(0);
+  const [updatingTip, setUpdatingTip] = useState(false);
+  const [customTipInput, setCustomTipInput] = useState<string>("");
+
+  /** Compute a clean breakdown safely (without tip) */
   const breakdown = useMemo(() => {
-    // If depositCents is present, treat it as "Subtotal" (charged now before tax/fees)
-    // Otherwise, fall back to amountDueCents as subtotal (no tax/fees passed).
     const subtotalCents =
       typeof depositCents === "number"
         ? depositCents
@@ -136,11 +143,9 @@ function CheckoutInner({
         ? subtotalCents + taxNow + feeNow - discountNow
         : undefined;
 
-    // Prefer explicit amountDueCents if provided; otherwise use calc
     const totalCents =
       typeof amountDueCents === "number" ? amountDueCents : calcTotal;
 
-    // Optional remaining balance hint (if basePrice and deposit provided)
     const hasDeposit =
       typeof basePriceCents === "number" &&
       typeof depositCents === "number" &&
@@ -168,6 +173,60 @@ function CheckoutInner({
     discountCents,
   ]);
 
+  // Final total user pays now (incl. tip)
+  const finalDueNowCents = (breakdown.totalCents ?? 0) + tipCents;
+
+  /** Tip helpers & selection state */
+  const tipBaseCents =
+    typeof basePriceCents === "number"
+      ? basePriceCents
+      : (breakdown.subtotalCents ?? 0);
+
+  const presetPercents = [20, 25, 30, 40];
+  const tipForPct = (p: number) => Math.round((tipBaseCents * p) / 100);
+  const isPresetSelected = (p: number) => tipCents === tipForPct(p);
+  const isCustomSelected =
+    tipCents > 0 && !presetPercents.some((p) => isPresetSelected(p));
+
+  /** Update tip on server (updates PaymentIntent amount and saves booking.tipCents) */
+  async function updateTipOnServer(newTipCents: number) {
+    try {
+      setUpdatingTip(true);
+      const res = await fetch("/api/book/set-tip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId, tipCents: newTipCents }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data?.error || "Could not update tip.");
+        return;
+      }
+      setTipCents(data.tipCents ?? newTipCents);
+      toast.success(data.tipCents > 0 ? "Tip added" : "Tip removed");
+    } catch (e: any) {
+      toast.error(e?.message || "Could not update tip.");
+    } finally {
+      setUpdatingTip(false);
+    }
+  }
+
+  /** Tip button handlers */
+  function tipFromPercent(pct: number) {
+    const cents = tipForPct(pct);
+    setCustomTipInput("");
+    updateTipOnServer(cents);
+  }
+  function tipNone() {
+    setCustomTipInput("");
+    updateTipOnServer(0);
+  }
+  function tipFromCustom() {
+    const cents = toCents(customTipInput);
+    updateTipOnServer(cents);
+  }
+
+  /** Pay */
   async function handlePay() {
     if (!stripe || !elements) {
       setError("Payments aren’t ready yet. Try reloading the page.");
@@ -301,6 +360,14 @@ function CheckoutInner({
             </div>
           )}
 
+          {/* Tip line (if > 0) */}
+          {tipCents > 0 && (
+            <div style={row}>
+              <span style={muted}>Tip</span>
+              <span>{fmt(tipCents)}</span>
+            </div>
+          )}
+
           <div
             style={{
               ...row,
@@ -310,9 +377,7 @@ function CheckoutInner({
             }}
           >
             <span style={{ fontWeight: 600 }}>Due now</span>
-            <span style={{ fontWeight: 600 }}>
-              {fmt(breakdown.totalCents ?? amountDueCents)}
-            </span>
+            <span style={{ fontWeight: 600 }}>{fmt(finalDueNowCents)}</span>
           </div>
 
           {/* Remaining balance hint (pre-tax) */}
@@ -326,9 +391,87 @@ function CheckoutInner({
         </div>
       </div>
 
-      {/* Payment Element */}
+      {/* Payment + Tip */}
       <div style={payCard}>
         <div style={{ fontWeight: 600, marginBottom: 8 }}>Payment</div>
+
+        {/* Tip selector */}
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ ...small, marginBottom: 6 }}>
+            Tip your groomer (optional)
+          </div>
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {/* No tip */}
+            <button
+              type='button'
+              onClick={tipNone}
+              disabled={updatingTip}
+              style={{
+                ...chipBtn,
+                ...(tipCents === 0 ? chipSelected : null),
+              }}
+            >
+              No tip
+            </button>
+
+            {/* Preset percents */}
+            {presetPercents.map((p) => (
+              <button
+                key={p}
+                type='button'
+                onClick={() => tipFromPercent(p)}
+                disabled={updatingTip}
+                style={{
+                  ...chipBtn,
+                  ...(isPresetSelected(p) ? chipSelected : null),
+                }}
+                title={
+                  typeof basePriceCents === "number"
+                    ? `$${((basePriceCents * p) / 100 / 100).toFixed(2)}`
+                    : undefined
+                }
+              >
+                {p}%
+              </button>
+            ))}
+
+            {/* Custom amount */}
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <span style={{ fontSize: 14 }}>$</span>
+              <input
+                type='number'
+                min={0}
+                step='0.01'
+                placeholder='Custom'
+                value={customTipInput}
+                onChange={(e) => setCustomTipInput(e.target.value)}
+                style={{
+                  ...inputMini,
+                  width: 90,
+                  ...(isCustomSelected ? inputMiniSelected : null),
+                }}
+                disabled={updatingTip}
+              />
+              <button
+                type='button'
+                onClick={tipFromCustom}
+                disabled={updatingTip}
+                style={{
+                  ...outlineBtnSm,
+                  ...(isCustomSelected ? outlineBtnSmSelected : null),
+                }}
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+
+          <div style={{ ...small, marginTop: 6, color: "#666" }}>
+            100% of tips go to your groomer.
+          </div>
+        </div>
+
         <div style={{ marginBottom: 12 }}>
           <PaymentElement />
         </div>
@@ -340,10 +483,11 @@ function CheckoutInner({
         <button
           type='button'
           onClick={handlePay}
-          disabled={submitting || !stripe || !elements}
+          disabled={submitting || !stripe || !elements || updatingTip}
           style={{
             ...primaryBtn,
-            opacity: submitting || !stripe || !elements ? 0.7 : 1,
+            opacity:
+              submitting || !stripe || !elements || updatingTip ? 0.7 : 1,
           }}
         >
           {submitting ? "Processing…" : "Pay & Book"}
@@ -390,9 +534,34 @@ const row: React.CSSProperties = {
   padding: "4px 0",
 };
 
-const muted: React.CSSProperties = {
-  color: "#666",
+const chipBtn: React.CSSProperties = {
+  padding: "6px 10px",
+  borderRadius: 999,
+  background: "white",
+  color: "#333",
+  border: "1px solid #ddd",
+  cursor: "pointer",
 };
+
+const chipSelected: React.CSSProperties = {
+  background: "#111",
+  color: "white",
+  border: "1px solid #111",
+};
+
+const inputMini: React.CSSProperties = {
+  padding: "6px 8px",
+  borderRadius: 6,
+  border: "1px solid #ddd",
+  background: "white",
+};
+
+const inputMiniSelected: React.CSSProperties = {
+  borderColor: "#111",
+  boxShadow: "0 0 0 1px #111 inset",
+};
+
+const muted: React.CSSProperties = { color: "#666" };
 
 const primaryBtn: React.CSSProperties = {
   padding: "10px 14px",
@@ -403,7 +572,19 @@ const primaryBtn: React.CSSProperties = {
   cursor: "pointer",
 };
 
-const small: React.CSSProperties = {
-  fontSize: 12,
-  color: "#666",
+const outlineBtnSm: React.CSSProperties = {
+  padding: "6px 10px",
+  borderRadius: 6,
+  background: "white",
+  color: "#333",
+  border: "1px solid #ddd",
+  cursor: "pointer",
 };
+
+const outlineBtnSmSelected: React.CSSProperties = {
+  background: "#111",
+  color: "white",
+  border: "1px solid #111",
+};
+
+const small: React.CSSProperties = { fontSize: 12, color: "#666" };
