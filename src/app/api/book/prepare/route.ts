@@ -9,13 +9,15 @@ import { isGroomerAvailable } from "@/lib/availability";
 
 const ANY_ID = "ANY";
 const HOLD_MINUTES = 12;
-const DEFAULT_DEPOSIT_PCT = 0.2; // used if service.depositPct is null
-const DEFAULT_TAX_RATE = 0.0; // used if service.taxRate is null
+// Default to FULL payment when nothing else is configured:
+const DEFAULT_DEPOSIT_RATE = 1.0; // 100%
+const DEFAULT_TAX_RATE = 0.0; // 0%
 
 type Body = {
-  serviceId: string;
-  groomerId: string; // may be "ANY"
-  startIso: string; // exact start time ISO (from chosen slot)
+  serviceId?: string;
+  groomerId?: string; // may be "ANY"
+  startIso?: string; // exact start time ISO
+  slotIso?: string; // alias accepted for compatibility
   details?: {
     phone?: string;
     notes?: string;
@@ -23,7 +25,16 @@ type Body = {
   };
 };
 
+function normalizeRate(input: unknown, fallback: number): number {
+  // Accepts "20", 20 => 0.2 ; "0.2", 0.2 => 0.2 ; clamps to [0,1]
+  const n = typeof input === "number" ? input : parseFloat(String(input ?? ""));
+  if (!Number.isFinite(n)) return fallback;
+  const v = n > 1 ? n / 100 : n;
+  return Math.max(0, Math.min(1, v));
+}
+
 export async function POST(req: Request) {
+  // 1) Auth
   const session = await auth();
   if (!session) return NextResponse.json({ error: "unauth" }, { status: 401 });
 
@@ -31,6 +42,7 @@ export async function POST(req: Request) {
   if (!userId)
     return NextResponse.json({ error: "user missing" }, { status: 400 });
 
+  // 2) Parse body
   let body: Body;
   try {
     body = await req.json();
@@ -38,7 +50,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad json" }, { status: 400 });
   }
 
-  const { serviceId, groomerId: incomingGroomerId, startIso, details } = body;
+  const serviceId = body.serviceId;
+  const incomingGroomerId = body.groomerId;
+  const startIso = body.startIso || body.slotIso;
+  const details = body.details;
+
   if (!serviceId || !incomingGroomerId || !startIso) {
     return NextResponse.json({ error: "missing params" }, { status: 400 });
   }
@@ -48,28 +64,34 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad start" }, { status: 400 });
   }
 
-  const service = await db.service.findUnique({
-    where: { id: serviceId },
-    select: {
-      id: true,
-      active: true,
-      durationMin: true,
-      priceCents: true,
-      depositPct: true, // optional; fallback below if not in schema
-      taxRate: true, // optional; fallback below if not in schema
-    } as any,
-  });
+  // 3) Load service and global config
+  const [service, depositCfg, taxCfg] = await Promise.all([
+    db.service.findUnique({
+      where: { id: serviceId },
+      select: {
+        id: true,
+        active: true,
+        durationMin: true,
+        priceCents: true,
+        depositPct: true, // service-level override (0..1)
+        taxRate: true, // service-level override (0..1)
+      },
+    }),
+    db.config.findUnique({ where: { key: "depositPct" } }), // stored as percentage text, e.g. "20" or "100"
+    db.config.findUnique({ where: { key: "taxRate" } }), // stored as percentage text, e.g. "8.6"
+  ]);
+
   if (!service || !service.active) {
     return NextResponse.json({ error: "bad service" }, { status: 400 });
   }
 
-  const durationMin = typeof service.durationMin === "number" ? service.durationMin : 0;
+  const durationMin =
+    typeof service.durationMin === "number" ? service.durationMin : 0;
   const end = new Date(start.getTime() + durationMin * 60 * 1000);
 
-  // Pick/validate groomer
+  // 4) Choose/validate groomer
   let groomerId = incomingGroomerId;
   if (!groomerId || groomerId === ANY_ID) {
-    // auto-assign first available groomer
     const candidates = await db.groomer.findMany({
       where: { active: true },
       select: { id: true },
@@ -103,23 +125,34 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "time not available" }, { status: 409 });
   }
 
-  // Totals (server authority)
-  const depositPct =
+  // 5) Compute amount due (service overrides -> global config -> defaults)
+  const baseCents = Number(service.priceCents) || 0;
+
+  const globalDepositRate = normalizeRate(
+    depositCfg?.value,
+    DEFAULT_DEPOSIT_RATE
+  );
+  const globalTaxRate = normalizeRate(taxCfg?.value, DEFAULT_TAX_RATE);
+
+  const depositRate =
     typeof service.depositPct === "number"
-      ? service.depositPct
-      : DEFAULT_DEPOSIT_PCT;
+      ? normalizeRate(service.depositPct, globalDepositRate)
+      : globalDepositRate;
+
   const taxRate =
-    typeof service.taxRate === "number" ? service.taxRate : DEFAULT_TAX_RATE;
+    typeof service.taxRate === "number"
+      ? normalizeRate(service.taxRate, globalTaxRate)
+      : globalTaxRate;
 
   const round = (n: number) => Math.round(n);
-  const depositCents = round(Number(service.priceCents) * depositPct);
+  const depositCents = round(baseCents * depositRate);
   const taxCents = round(depositCents * taxRate);
   const amountDueCents = depositCents + taxCents;
 
-  // Stripe customer
+  // 6) Stripe customer
   const customerId = await getOrCreateStripeCustomer(userId);
 
-  // Create/hold booking (PENDING_PAYMENT) with expiry
+  // 7) Create booking hold (PENDING_PAYMENT) with expiry
   const expiresAt = new Date(Date.now() + HOLD_MINUTES * 60 * 1000);
   const booking = await db.booking.create({
     data: {
@@ -130,7 +163,7 @@ export async function POST(req: Request) {
       end,
       status: "PENDING_PAYMENT",
       depositCents,
-      taxCents,
+      taxCents: taxCents || null,
       amountDueCents,
       expiresAt,
       notes: details?.notes || null,
@@ -139,7 +172,7 @@ export async function POST(req: Request) {
     select: { id: true },
   });
 
-  // Create PaymentIntent
+  // 8) Create PaymentIntent for amountDueCents
   const intent = await stripe.paymentIntents.create(
     {
       amount: amountDueCents,
@@ -152,28 +185,28 @@ export async function POST(req: Request) {
         userId,
         serviceId,
         groomerId,
-        startIso,
+        startIso: start.toISOString(),
       },
     },
     {
-      // Optional: idempotency for retries from client
       idempotencyKey: `prepare:${booking.id}`,
     }
   );
 
+  // 9) Save PI id on booking
   await db.booking.update({
     where: { id: booking.id },
     data: { paymentIntentId: intent.id },
   });
 
+  // 10) Response expected by your CheckoutStep / wizard
   return NextResponse.json({
     bookingId: booking.id,
     clientSecret: intent.client_secret,
-    totals: {
-      depositCents,
-      taxCents,
-      amountDueCents,
-    },
+    amountDueCents,
+    slotIso: start.toISOString(),
+    // Optional extras:
+    totals: { depositCents, taxCents, amountDueCents },
     hold: { expiresAt: expiresAt.toISOString(), minutes: HOLD_MINUTES },
   });
 }

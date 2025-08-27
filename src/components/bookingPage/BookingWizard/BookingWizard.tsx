@@ -36,7 +36,14 @@ type Checkout = {
   clientSecret: string;
   amountDueCents: number;
   slotIso: string;
+  totals?: {
+    depositCents: number;
+    taxCents: number;
+    feeCents?: number;
+    discountCents?: number;
+  };
 } | null;
+
 
 /* ─────────────────────────────────────────────────────────
    Constants
@@ -512,6 +519,7 @@ export default function BookingWizard({
             clientSecret: data.clientSecret,
             amountDueCents: data.amountDueCents,
             slotIso: data.slotIso,
+            totals: (data as any).totals,
           });
         }
       } catch (e: any) {
@@ -693,6 +701,11 @@ export default function BookingWizard({
                 bookingId={checkout.bookingId}
                 clientSecret={checkout.clientSecret}
                 amountDueCents={checkout.amountDueCents}
+                basePriceCents={selectedService.priceCents}
+                depositCents={checkout.totals?.depositCents}
+                taxCents={checkout.totals?.taxCents}
+                feeCents={checkout.totals?.feeCents}
+                discountCents={checkout.totals?.discountCents}
                 serviceName={selectedService.name}
                 durationMin={selectedService.durationMin}
                 groomerName={selectedGroomerLabel}

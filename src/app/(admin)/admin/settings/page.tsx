@@ -4,6 +4,7 @@ import { auth } from "../../../../../auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import ConfirmSubmit from "@/components/shared/ConfirmSubmit/ConfirmSubmit";
+import ToastBridge from "@/components/shared/ToastBridge/ToastBridge"; // ⬅️ new
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -46,6 +47,8 @@ export async function updateGeneralSettings(formData: FormData) {
   ]);
 
   revalidatePath(BASE_PATH);
+  // ⬇️ redirect with toast flag
+  redirect(`${BASE_PATH}?toast=settings_saved`);
 }
 
 /*───────────────────────────────────
@@ -68,6 +71,7 @@ export async function updateNotificationTemplate(formData: FormData) {
   });
 
   revalidatePath(BASE_PATH);
+  redirect(`${BASE_PATH}?toast=template_saved`);
 }
 
 /*───────────────────────────────────
@@ -85,6 +89,7 @@ export async function addBlackoutDate(formData: FormData) {
 
   await db.blackoutDate.create({ data: { date } });
   revalidatePath(BASE_PATH);
+  redirect(`${BASE_PATH}?toast=blackout_added`);
 }
 
 export async function removeBlackoutDate(formData: FormData) {
@@ -96,14 +101,27 @@ export async function removeBlackoutDate(formData: FormData) {
   const id = formData.get("id") as string;
   await db.blackoutDate.delete({ where: { id } });
   revalidatePath(BASE_PATH);
+  redirect(`${BASE_PATH}?toast=blackout_removed`);
 }
 
 /*───────────────────────────────────
   4️⃣ Admin Settings Page Component
 ────────────────────────────────────*/
-export default async function AdminSettingsPage() {
+type SearchParamsPromise = Promise<
+  Record<string, string | string[] | undefined>
+>;
+
+export default async function AdminSettingsPage({
+  searchParams,
+}: {
+  searchParams: SearchParamsPromise; // ← Next 15: async
+}) {
   const session = await auth();
   if (!session || session.user.role !== "ADMIN") redirect("/login");
+
+  const spObj = await searchParams;
+  const toastKeyRaw = spObj?.toast;
+  const toastKey = Array.isArray(toastKeyRaw) ? toastKeyRaw[0] : toastKeyRaw;
 
   const [depositCfg, cancelCfg, taxCfg] = await Promise.all([
     db.config.findUnique({ where: { key: "depositPct" } }),
@@ -119,6 +137,9 @@ export default async function AdminSettingsPage() {
 
   return (
     <section style={{ padding: "2rem" }}>
+      {/* Toasts */}
+      <ToastBridge toastKey={toastKey} />
+
       {/* Header */}
       <div
         style={{

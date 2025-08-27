@@ -14,15 +14,17 @@ const BASE_PATH = "/admin/bookings";
 export default async function BookingDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params; // ⬅️ await params before using
+
   // Admin guard
   const session = await auth();
   if (!session || session.user.role !== "ADMIN") redirect("/login");
 
   // Load booking
   const booking = await db.booking.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       user: { select: { name: true, email: true, id: true } },
       groomer: {

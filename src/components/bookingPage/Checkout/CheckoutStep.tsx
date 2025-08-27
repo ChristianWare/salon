@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import {  useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Elements,
   PaymentElement,
@@ -14,18 +14,29 @@ import toast from "react-hot-toast";
 
 /** ─────────────────────────────────────────────────────────
  *  Types
- *  (Adjust the summary props as you like)
+ *  (Add optional breakdown props)
  *  ───────────────────────────────────────────────────────── */
 type CheckoutStepProps = {
   bookingId: string;
   clientSecret: string;
+
+  // totals (existing)
   amountDueCents?: number;
+
+  // optional breakdown (pass these if you have them)
+  basePriceCents?: number; // the service's full price before tax/fees/discounts
+  depositCents?: number; // portion to charge now before tax (if using deposits)
+  taxCents?: number; // tax applied to what's charged now
+  feeCents?: number; // any processing/booking fee charged now
+  discountCents?: number; // discount applied now (positive number; will be subtracted)
+
+  // summary labels
   serviceName?: string;
   durationMin?: number;
   groomerName?: string;
   dateLabel?: string; // e.g., "Aug 26, 2025"
   timeLabel?: string; // e.g., "2:30 PM"
-  onDone?: (status: "CONFIRMED" | "PENDING" | "UNKNOWN") => void; // if you want to navigate afterward
+  onDone?: (status: "CONFIRMED" | "PENDING" | "UNKNOWN") => void;
 };
 
 /** ─────────────────────────────────────────────────────────
@@ -33,13 +44,17 @@ type CheckoutStepProps = {
  *  ───────────────────────────────────────────────────────── */
 const PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 if (!PK) {
-  // Don’t crash the page, but log loudly so you notice in dev
-  // (The UI will show “Initializing…” until PK is set)
   console.error("Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY");
 }
 const stripePromise: Promise<Stripe | null> = PK
   ? loadStripe(PK)
   : Promise.resolve(null);
+
+/** Format helper */
+function fmt(cents?: number) {
+  if (typeof cents !== "number") return "—";
+  return `$${(cents / 100).toFixed(2)}`;
+}
 
 /** ─────────────────────────────────────────────────────────
  *  Outer wrapper (provides <Elements>)
@@ -47,14 +62,10 @@ const stripePromise: Promise<Stripe | null> = PK
 export default function CheckoutStep(props: CheckoutStepProps) {
   const { clientSecret } = props;
 
-  // Only render Elements when we have a clientSecret
   const options = useMemo(
     () =>
       clientSecret
-        ? ({
-            clientSecret,
-            appearance: { labels: "above" as const },
-          } as const)
+        ? ({ clientSecret, appearance: { labels: "above" as const } } as const)
         : undefined,
     [clientSecret]
   );
@@ -62,7 +73,6 @@ export default function CheckoutStep(props: CheckoutStepProps) {
   if (!clientSecret) {
     return <div style={{ color: "#666" }}>Preparing secure payment…</div>;
   }
-
   if (!PK) {
     return (
       <div style={{ color: "#b33636" }}>
@@ -85,6 +95,11 @@ export default function CheckoutStep(props: CheckoutStepProps) {
 function CheckoutInner({
   bookingId,
   amountDueCents,
+  basePriceCents,
+  depositCents,
+  taxCents,
+  feeCents,
+  discountCents,
   serviceName,
   durationMin,
   groomerName,
@@ -98,12 +113,60 @@ function CheckoutInner({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
 
-  // Simple price formatter
-  const price = useMemo(() => {
-    if (typeof amountDueCents === "number")
-      return (amountDueCents / 100).toFixed(2);
-    return undefined;
-  }, [amountDueCents]);
+  /** Compute a clean breakdown safely */
+  const breakdown = useMemo(() => {
+    // If depositCents is present, treat it as "Subtotal" (charged now before tax/fees)
+    // Otherwise, fall back to amountDueCents as subtotal (no tax/fees passed).
+    const subtotalCents =
+      typeof depositCents === "number"
+        ? depositCents
+        : typeof amountDueCents === "number"
+          ? amountDueCents -
+            (taxCents ?? 0) -
+            (feeCents ?? 0) +
+            (discountCents ?? 0)
+          : undefined;
+
+    const taxNow = typeof taxCents === "number" ? taxCents : 0;
+    const feeNow = typeof feeCents === "number" ? feeCents : 0;
+    const discountNow = typeof discountCents === "number" ? discountCents : 0;
+
+    const calcTotal =
+      typeof subtotalCents === "number"
+        ? subtotalCents + taxNow + feeNow - discountNow
+        : undefined;
+
+    // Prefer explicit amountDueCents if provided; otherwise use calc
+    const totalCents =
+      typeof amountDueCents === "number" ? amountDueCents : calcTotal;
+
+    // Optional remaining balance hint (if basePrice and deposit provided)
+    const hasDeposit =
+      typeof basePriceCents === "number" &&
+      typeof depositCents === "number" &&
+      depositCents < basePriceCents;
+
+    const remainingPreTax = hasDeposit
+      ? Math.max(0, basePriceCents! - depositCents!)
+      : 0;
+
+    return {
+      subtotalCents,
+      taxNow,
+      feeNow,
+      discountNow,
+      totalCents,
+      hasDeposit,
+      remainingPreTax,
+    };
+  }, [
+    amountDueCents,
+    basePriceCents,
+    depositCents,
+    taxCents,
+    feeCents,
+    discountCents,
+  ]);
 
   async function handlePay() {
     if (!stripe || !elements) {
@@ -114,7 +177,6 @@ function CheckoutInner({
     setSubmitting(true);
     setError("");
 
-    // 1) Trigger validation so Element shows inline errors (card number, postal, etc)
     const { error: submitErr } = await elements.submit();
     if (submitErr) {
       setSubmitting(false);
@@ -122,10 +184,9 @@ function CheckoutInner({
       return;
     }
 
-    // 2) Confirm the PaymentIntent created in your /api/book/prepare
     const { error: confirmErr } = await stripe.confirmPayment({
       elements,
-      redirect: "if_required", // leave it as 'if_required' unless you want to force redirect flow
+      redirect: "if_required",
     });
 
     if (confirmErr) {
@@ -134,7 +195,6 @@ function CheckoutInner({
       return;
     }
 
-    // 3) Immediately finalize the booking (no webhook dependency)
     try {
       const res = await fetch("/api/book/finalize", {
         method: "POST",
@@ -144,7 +204,6 @@ function CheckoutInner({
       const data = await res.json();
 
       if (!res.ok) {
-        // If finalize fails, let user know, and you can also poll or fall back to webhook
         setSubmitting(false);
         setError(data?.error || "We’re finalizing your booking…");
         toast("We’re finalizing your booking. You can check My Bookings.", {
@@ -154,7 +213,6 @@ function CheckoutInner({
         return;
       }
 
-      // Success — booking is CONFIRMED or PENDING depending on autoConfirm
       setSubmitting(false);
       const status = (data?.status as "CONFIRMED" | "PENDING") || "UNKNOWN";
       toast.success(status === "CONFIRMED" ? "Booked!" : "Request sent!");
@@ -171,7 +229,7 @@ function CheckoutInner({
 
   return (
     <div style={wrap}>
-      {/* Summary (customize or remove) */}
+      {/* Summary */}
       <div style={summaryCard}>
         <div style={{ fontWeight: 600, marginBottom: 8 }}>Review</div>
         <div style={row}>
@@ -194,16 +252,77 @@ function CheckoutInner({
           <span style={muted}>Time</span>
           <span>{timeLabel ?? "—"}</span>
         </div>
+
+        {/* Optional: show full service price if provided */}
+        {typeof basePriceCents === "number" && (
+          <div style={{ ...row, marginTop: 8 }}>
+            <span style={muted}>Service price</span>
+            <span>{fmt(basePriceCents)}</span>
+          </div>
+        )}
+
+        {/* Breakdown (Subtotal/Deposit, Tax, Fees, Discount) */}
         <div
           style={{
-            ...row,
-            borderTop: "1px solid #eee",
-            paddingTop: 8,
             marginTop: 8,
+            paddingTop: 8,
+            borderTop: "1px solid #eee",
+            display: "grid",
+            gap: 6,
           }}
         >
-          <span style={{ fontWeight: 600 }}>Due now</span>
-          <span style={{ fontWeight: 600 }}>{price ? `$${price}` : "—"}</span>
+          {typeof breakdown.subtotalCents === "number" && (
+            <div style={row}>
+              <span style={muted}>
+                {breakdown.hasDeposit ? "Deposit (today)" : "Subtotal"}
+              </span>
+              <span>{fmt(breakdown.subtotalCents)}</span>
+            </div>
+          )}
+
+          {breakdown.taxNow > 0 && (
+            <div style={row}>
+              <span style={muted}>Tax</span>
+              <span>{fmt(breakdown.taxNow)}</span>
+            </div>
+          )}
+
+          {breakdown.feeNow > 0 && (
+            <div style={row}>
+              <span style={muted}>Fees</span>
+              <span>{fmt(breakdown.feeNow)}</span>
+            </div>
+          )}
+
+          {breakdown.discountNow > 0 && (
+            <div style={row}>
+              <span style={muted}>Discount</span>
+              <span>-{fmt(breakdown.discountNow)}</span>
+            </div>
+          )}
+
+          <div
+            style={{
+              ...row,
+              borderTop: "1px solid #eee",
+              paddingTop: 8,
+              marginTop: 4,
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>Due now</span>
+            <span style={{ fontWeight: 600 }}>
+              {fmt(breakdown.totalCents ?? amountDueCents)}
+            </span>
+          </div>
+
+          {/* Remaining balance hint (pre-tax) */}
+          {breakdown.hasDeposit && (
+            <div style={{ ...small, marginTop: 2 }}>
+              Remaining service balance (pre-tax):{" "}
+              <strong>{fmt(breakdown.remainingPreTax)}</strong> due at
+              appointment.
+            </div>
+          )}
         </div>
       </div>
 
@@ -239,7 +358,7 @@ function CheckoutInner({
 }
 
 /** ─────────────────────────────────────────────────────────
- *  Inline styles (match your project’s look)
+ *  Inline styles
  *  ───────────────────────────────────────────────────────── */
 const wrap: React.CSSProperties = {
   display: "grid",

@@ -161,8 +161,6 @@ export default async function BookingPage({
     ])
   );
 
-  
-
   return (
     <section style={{ padding: "2rem" }}>
       {/* Header */}
@@ -490,7 +488,7 @@ function StatusBadge({ status }: { status: string }) {
   const color =
     status === "CONFIRMED"
       ? "#0a7"
-      : status === "PENDING"
+      : status === "PENDING" || status === "PENDING_PAYMENT"
         ? "#d88a00"
         : status === "COMPLETED"
           ? "#0366d6"
@@ -508,7 +506,7 @@ function StatusBadge({ status }: { status: string }) {
         fontSize: 12,
       }}
     >
-      {status.replace("_", " ")}
+      {status.replaceAll("_", " ")} {/* nicer label */}
     </span>
   );
 }
