@@ -3,7 +3,7 @@ import { auth } from "../../../../auth";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import ConfirmSubmit from "@/components/shared/ConfirmSubmit/ConfirmSubmit";
+import CancelBookingForm from "../CancelBookingForm/CancelBookingForm";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -39,7 +39,7 @@ export async function cancelBooking(formData: FormData) {
   const cutoff = new Date(booking.start);
   cutoff.setHours(cutoff.getHours() - (Number.isFinite(hours) ? hours : 24));
   if (new Date() > cutoff) {
-    throw new Error(`Too late to cancel online. Please contact the salon.`);
+    throw new Error("Too late to cancel online. Please contact the salon.");
   }
 
   await db.booking.update({
@@ -175,19 +175,7 @@ export default async function DashboardPageIntro() {
           </div>
           {next && (
             <div style={{ display: "flex", gap: 8 }}>
-              <form
-                action={cancelBooking}
-                id={`cancel-${next.id}`}
-                style={{ display: "none" }}
-              >
-                <input type='hidden' name='id' value={next.id} />
-              </form>
-              <ConfirmSubmit
-                form={`cancel-${next.id}`}
-                message='Cancel this appointment?'
-              >
-                Cancel
-              </ConfirmSubmit>
+              <CancelBookingForm bookingId={next.id} />
             </div>
           )}
         </div>
@@ -272,7 +260,6 @@ export default async function DashboardPageIntro() {
                 const time = timeFmt.format(new Date(b.start));
                 const canCancel =
                   b.status === "PENDING" || b.status === "CONFIRMED";
-                const formId = `cancel-${b.id}`;
                 return (
                   <tr key={b.id} style={{ borderTop: "1px solid #eee" }}>
                     <td style={td}>{date}</td>
@@ -288,21 +275,7 @@ export default async function DashboardPageIntro() {
                     </td>
                     <td style={td}>
                       {canCancel ? (
-                        <>
-                          <form
-                            action={cancelBooking}
-                            id={formId}
-                            style={{ display: "none" }}
-                          >
-                            <input type='hidden' name='id' value={b.id} />
-                          </form>
-                          <ConfirmSubmit
-                            form={formId}
-                            message='Cancel this appointment?'
-                          >
-                            Cancel
-                          </ConfirmSubmit>
-                        </>
+                        <CancelBookingForm bookingId={b.id} />
                       ) : (
                         <span style={{ color: "#666" }}>—</span>
                       )}

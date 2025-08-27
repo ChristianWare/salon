@@ -3,9 +3,8 @@ import { redirect } from "next/navigation";
 import { auth } from "../../../../../auth";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
-import ConfirmSubmit from "@/components/shared/ConfirmSubmit/ConfirmSubmit";
 import type { Prisma } from "@prisma/client";
+import CancelBookingForm from "@/components/dashboard/CancelBookingForm/CancelBookingForm";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,42 +12,11 @@ export const revalidate = 0;
 const BASE_PATH = "/dashboard/my-bookings";
 const TZ = process.env.SALON_TZ ?? "America/Phoenix";
 
-/* ───────────────── Server Action: cancel booking ───────────────── */
-export async function cancelBooking(formData: FormData) {
-  "use server";
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
-
-  const id = formData.get("id") as string;
-  const me = session.user.id;
-
-  const booking = await db.booking.findUnique({
-    where: { id },
-    select: { id: true, userId: true, start: true, status: true },
-  });
-  if (!booking || booking.userId !== me) throw new Error("Not allowed");
-  if (!(booking.status === "PENDING" || booking.status === "CONFIRMED")) {
-    throw new Error("Only upcoming bookings can be czanceled.");
-  }
-
-  // Respect cancellation window (hours) from settings; default 24h
-  const cancelCfg = await db.config.findUnique({
-    where: { key: "cancelWindow" },
-  });
-  const hours = Number(cancelCfg?.value ?? "24");
-  const cutoff = new Date(booking.start);
-  cutoff.setHours(cutoff.getHours() - (Number.isFinite(hours) ? hours : 24));
-  if (new Date() > cutoff)
-    throw new Error("Too late to cancel online. Please contact the salon.");
-
-  await db.booking.update({ where: { id }, data: { status: "CANCELED" } });
-  revalidatePath(BASE_PATH);
-}
-
 /* ───────────────── helpers ───────────────── */
 type SearchParamsPromise = Promise<
   Record<string, string | string[] | undefined>
 >;
+
 function getStr(
   sp: Record<string, string | string[] | undefined>,
   key: string,
@@ -57,6 +25,7 @@ function getStr(
   const v = sp[key];
   return Array.isArray(v) ? (v[0] ?? fallback) : (v ?? fallback);
 }
+
 function getNum(
   sp: Record<string, string | string[] | undefined>,
   key: string,
@@ -65,6 +34,7 @@ function getNum(
   const n = Number(getStr(sp, key, ""));
   return Number.isFinite(n) && n > 0 ? n : fallback;
 }
+
 function buildHref(prev: URLSearchParams, next: Record<string, string | null>) {
   const q: Record<string, string> = Object.fromEntries(prev.entries());
   for (const [k, v] of Object.entries(next)) {
@@ -150,7 +120,7 @@ export default async function MyBookingsPage({
       ? ({ start: "asc" } as const)
       : ({ start: "desc" } as const);
 
-  // 1) Fetch rows separately so included relations are correctly typed
+  // 1) Fetch rows
   const bookings = await db.booking.findMany({
     where,
     orderBy,
@@ -162,7 +132,7 @@ export default async function MyBookingsPage({
     },
   });
 
-  // 2) Aggregates in a tx
+  // 2) Aggregates
   const [total, statusCounts, upcomingCount, pastCount] = await db.$transaction(
     [
       db.booking.count({ where }),
@@ -320,7 +290,6 @@ export default async function MyBookingsPage({
                 const canCancel =
                   (b.status === "PENDING" || b.status === "CONFIRMED") &&
                   start > new Date();
-                const formId = `cancel-${b.id}`;
 
                 return (
                   <tr key={b.id} style={{ borderTop: "1px solid #eee" }}>
@@ -342,21 +311,7 @@ export default async function MyBookingsPage({
                     </td>
                     <td style={td}>
                       {canCancel ? (
-                        <>
-                          <form
-                            id={formId}
-                            action={cancelBooking}
-                            style={{ display: "none" }}
-                          >
-                            <input type='hidden' name='id' value={b.id} />
-                          </form>
-                          <ConfirmSubmit
-                            form={formId}
-                            message='Cancel this appointment?'
-                          >
-                            Cancel
-                          </ConfirmSubmit>
-                        </>
+                        <CancelBookingForm bookingId={b.id} />
                       ) : (
                         <span style={{ color: "#666" }}>—</span>
                       )}
@@ -382,7 +337,10 @@ export default async function MyBookingsPage({
           Showing{" "}
           {total === 0
             ? "0"
-            : `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)}`}{" "}
+            : `${(page - 1) * pageSize + 1}–${Math.min(
+                page * pageSize,
+                total
+              )}`}{" "}
           of {total}
         </div>
         <div style={{ display: "flex", gap: 8 }}>

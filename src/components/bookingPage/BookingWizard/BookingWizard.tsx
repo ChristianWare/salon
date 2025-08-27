@@ -1,9 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import LayoutWrapper from "@/components/shared/LayoutWrapper";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+// ⬇️ Update this path if your CheckoutStep lives elsewhere
+import CheckoutStep from "@/components/bookingPage/Checkout/CheckoutStep";
 
 /* ─────────────────────────────────────────────────────────
    Types
@@ -28,6 +30,13 @@ type Slot = {
 };
 
 type GroomerCalendar = { workDays: number[]; blackoutISO: string[] };
+
+type Checkout = {
+  bookingId: string;
+  clientSecret: string;
+  amountDueCents: number;
+  slotIso: string;
+} | null;
 
 /* ─────────────────────────────────────────────────────────
    Constants
@@ -327,9 +336,19 @@ export default function BookingWizard({
   const [date, setDate] = useState<string>(""); // YYYY-MM-DD
   const [slots, setSlots] = useState<Slot[]>([]);
   const [pending, start] = useTransition();
-  const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
+
+  // When a slot is chosen, we launch the checkout step:
+  const [checkoutSlot, setCheckoutSlot] = useState<{
+    iso: string;
+    groomerId: string;
+    groomerName?: string;
+  } | null>(null);
+
+  // ⬇️ New: holds the prepared payment info
+  const [checkout, setCheckout] = useState<Checkout>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string>("");
 
   const todayISO = useMemo(() => ymd(new Date()), []);
 
@@ -347,7 +366,7 @@ export default function BookingWizard({
   );
 
   // Date enable rules:
-  // - Specific groomer: original behavior (only that groomer's work days, minus blackouts)
+  // - Specific groomer: only that groomer's work days, minus blackouts
   // - ANY: enable if at least one groomer works that DOW and isn't blacked out that date
   const isDateEnabled = useMemo(() => {
     if (groomerId && groomerId !== ANY_ID) {
@@ -381,20 +400,20 @@ export default function BookingWizard({
       setDate("");
       setSlots([]);
       setMessage("");
-      setSuccess("");
+      setCheckoutSlot(null);
+      setCheckout(null);
     }
   }, [isDateEnabled, date]);
 
   const canFetch = useMemo(
-    () => Boolean(serviceId && groomerId && date),
-    [serviceId, groomerId, date]
+    () => Boolean(serviceId && groomerId && date && !checkoutSlot),
+    [serviceId, groomerId, date, checkoutSlot]
   );
 
   // fetch slots when all inputs chosen
   useEffect(() => {
     setSlots([]);
     setMessage("");
-    setSuccess("");
     if (!canFetch) return;
 
     let canceled = false;
@@ -423,165 +442,225 @@ export default function BookingWizard({
     };
   }, [canFetch, serviceId, groomerId, date]);
 
-  async function book(slotIso: string, slotGroomerId?: string) {
-    setSubmitting(true);
-    setMessage("");
-    setSuccess("");
-    try {
-      const res = await fetch("/api/book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          serviceId,
-          // If we fetched in ANY mode, prefer the slot's groomerId (the owner of that time)
-          groomerId: slotGroomerId ?? groomerId,
-          start: slotIso,
-        }),
-      });
-
-      if (res.status === 409) {
-        setMessage("Whoops — that slot was just taken. Pick another one.");
-      } else if (!res.ok) {
-        const j = await res.json().catch(() => ({}) as any);
-        setMessage(j.error || "Booking failed");
-      } else {
-        setSuccess("Booked! Check your email for confirmation.");
-      }
-    } catch {
-      setMessage("Booking failed");
-    } finally {
-      setSubmitting(false);
+  // safer time formatter
+  function displayTime(slot: Slot) {
+    const hasHHMM =
+      typeof slot.time24 === "string" && /^\d{2}:\d{2}$/.test(slot.time24);
+    if (hasHHMM) {
+      const [h, m] = slot.time24!.split(":").map(Number);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const h12 = ((h + 11) % 12) + 1;
+      return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
     }
+    if (slot.iso) {
+      return new Date(slot.iso).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+    return "—";
   }
 
-function displayTime(slot: Slot) {
-  const hasHHMM =
-    typeof slot.time24 === "string" && /^\d{2}:\d{2}$/.test(slot.time24);
-  if (hasHHMM) {
-    const [h, m] = slot.time24!.split(":").map(Number);
-    const ampm = h >= 12 ? "PM" : "AM";
-    const h12 = ((h + 11) % 12) + 1;
-    return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+  // When the user chooses a slot, launch checkout
+  function chooseSlot(s: Slot, fallbackGroomerId: string) {
+    if (!s.iso) return;
+    const gid = s.groomerId ?? fallbackGroomerId;
+    // Reset checkout state before preparing a new one
+    setCheckout(null);
+    setCheckoutError("");
+    setCheckoutLoading(true);
+    setCheckoutSlot({ iso: s.iso, groomerId: gid, groomerName: s.groomerName });
   }
-  if (slot.iso) {
-    return new Date(slot.iso).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-  return "—"; // ultimate fallback
-}
+
+  // ⬇️ Prepare payment when we have a checkoutSlot
+  useEffect(() => {
+    let aborted = false;
+
+    async function prepare() {
+      if (!checkoutSlot || !selectedService) return;
+      try {
+        const res = await fetch("/api/book/prepare", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            serviceId: selectedService.id,
+            // The definitive groomer for this slot (specific or assigned)
+            groomerId: checkoutSlot.groomerId,
+            slotIso: checkoutSlot.iso,
+          }),
+        });
+
+        const data = (await res.json()) as
+          | {
+              bookingId: string;
+              clientSecret: string;
+              amountDueCents: number;
+              slotIso: string;
+            }
+          | { error?: string };
+
+        if (aborted) return;
+
+        if (!res.ok || !("bookingId" in data)) {
+          setCheckoutError(
+            (data as any)?.error || "Could not initialize payment."
+          );
+          setCheckout(null);
+        } else {
+          setCheckout({
+            bookingId: data.bookingId,
+            clientSecret: data.clientSecret,
+            amountDueCents: data.amountDueCents,
+            slotIso: data.slotIso,
+          });
+        }
+      } catch (e: any) {
+        if (!aborted) {
+          setCheckoutError(e?.message || "Could not initialize payment.");
+          setCheckout(null);
+        }
+      } finally {
+        if (!aborted) setCheckoutLoading(false);
+      }
+    }
+
+    // Only prepare when a slot is chosen
+    if (checkoutSlot) {
+      prepare();
+    } else {
+      // cleared
+      setCheckout(null);
+      setCheckoutLoading(false);
+      setCheckoutError("");
+    }
+
+    return () => {
+      aborted = true;
+    };
+  }, [checkoutSlot, selectedService]);
+
+  const selectedGroomerLabel =
+    checkoutSlot?.groomerName ||
+    (groomerId === ANY_ID
+      ? "Any available groomer"
+      : groomers.find((g) => g.id === groomerId)?.name || "Groomer");
 
   return (
     <LayoutWrapper>
       {/* selectors */}
-      <div style={{ display: "grid", gap: 12, maxWidth: 620 }}>
-        <div>
-          <label style={label}>Service</label>
-          <select
-            value={serviceId}
-            onChange={(e) => setServiceId(e.target.value)}
-            style={select}
-          >
-            <option value=''>Select service</option>
-            {services.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} {s.durationMin ? `• ${s.durationMin}m` : ""} • $
-                {(s.priceCents / 100).toFixed(2)}
-              </option>
-            ))}
-          </select>
-          {selectedService && (
-            <div style={helpText}>
-              Duration: {duration} min · Price: ${price}
-            </div>
-          )}
-        </div>
+      {!checkoutSlot && (
+        <div style={{ display: "grid", gap: 12, maxWidth: 620 }}>
+          <div>
+            <label style={label}>Service</label>
+            <select
+              value={serviceId}
+              onChange={(e) => {
+                setServiceId(e.target.value);
+                setCheckoutSlot(null);
+                setCheckout(null);
+              }}
+              style={select}
+            >
+              <option value=''>Select service</option>
+              {services.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} {s.durationMin ? `• ${s.durationMin}m` : ""} • $
+                  {(s.priceCents / 100).toFixed(2)}
+                </option>
+              ))}
+            </select>
+            {selectedService && (
+              <div style={helpText}>
+                Duration: {duration} min · Price: ${price}
+              </div>
+            )}
+          </div>
 
-        <div>
-          <label style={label}>Groomer</label>
-          <select
-            value={groomerId}
-            onChange={(e) => setGroomerId(e.target.value)}
-            style={select}
-          >
-            <option value=''>Select groomer</option>
-            <option value={ANY_ID}>Any available groomer</option>
-            {groomers.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
+          <div>
+            <label style={label}>Groomer</label>
+            <select
+              value={groomerId}
+              onChange={(e) => {
+                setGroomerId(e.target.value);
+                setCheckoutSlot(null);
+                setCheckout(null);
+              }}
+              style={select}
+            >
+              <option value=''>Select groomer</option>
+              <option value={ANY_ID}>Any available groomer</option>
+              {groomers.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
 
-          {/* Helper text */}
-          {groomerId && groomerId !== ANY_ID && selectedCal && (
-            <div style={helpText}>
-              Select a date on:{" "}
-              {selectedCal.workDays
-                .slice()
-                .sort((a, b) => a - b)
-                .map(
-                  (d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]
-                )
-                .join(", ")}
-              {selectedCal.blackoutISO.length > 0 &&
-                " (some dates unavailable)"}
-            </div>
-          )}
-          {groomerId === ANY_ID && (
-            <div style={helpText}>
-              We’ll match you to the best available pro for your chosen time.
-            </div>
-          )}
-        </div>
+            {/* Helper text */}
+            {groomerId && groomerId !== ANY_ID && selectedCal && (
+              <div style={helpText}>
+                Select a date on:{" "}
+                {selectedCal.workDays
+                  .slice()
+                  .sort((a, b) => a - b)
+                  .map(
+                    (d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]
+                  )
+                  .join(", ")}
+                {selectedCal.blackoutISO.length > 0 &&
+                  " (some dates unavailable)"}
+              </div>
+            )}
+            {groomerId === ANY_ID && (
+              <div style={helpText}>
+                We’ll match you to the best available pro for your chosen time.
+              </div>
+            )}
+          </div>
 
-        <div>
-          <label style={label}>Date</label>
-          <CalendarPopover
-            value={date}
-            min={todayISO}
-            isDateEnabled={isDateEnabled}
-            onChange={setDate}
-          />
+          <div>
+            <label style={label}>Date</label>
+            <CalendarPopover
+              value={date}
+              min={todayISO}
+              isDateEnabled={isDateEnabled}
+              onChange={(d) => {
+                setDate(d);
+                setCheckoutSlot(null);
+                setCheckout(null);
+              }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* feedback */}
-      <div style={{ marginTop: 10 }}>
-        {pending && <p style={{ color: "#666" }}>Loading available times…</p>}
-        {!pending && canFetch && slots.length === 0 && !message && (
-          <p style={{ color: "#666" }}>No available times for that date.</p>
-        )}
-        {message && <p style={{ color: "#b33636" }}>{message}</p>}
-        {success && (
-          <div
-            style={{
-              ...cardSoft,
-              color: "#065f46",
-              borderColor: "#a7f3d0",
-              background: "#ecfdf5",
-            }}
-          >
-            <div style={{ marginBottom: 6 }}>{success}</div>
-            <a href='/dashboard/my-bookings' style={outlineBtn}>
-              View My Bookings
-            </a>
-          </div>
-        )}
-      </div>
+      {!checkoutSlot && (
+        <div style={{ marginTop: 10 }}>
+          {pending && <p style={{ color: "#666" }}>Loading available times…</p>}
+          {!pending &&
+            serviceId &&
+            groomerId &&
+            date &&
+            slots.length === 0 &&
+            !message && (
+              <p style={{ color: "#666" }}>No available times for that date.</p>
+            )}
+          {message && <p style={{ color: "#b33636" }}>{message}</p>}
+        </div>
+      )}
 
-      {/* slots */}
-      {slots.length > 0 && (
+      {/* slots list OR checkout step */}
+      {!checkoutSlot && slots.length > 0 && (
         <>
           <h3 style={{ marginTop: 14, marginBottom: 8 }}>Available Times</h3>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {slots.map((s, idx) => (
               <button
                 key={`${s.iso ?? idx}-${s.groomerId ?? ""}`}
-                onClick={() => book(s.iso, s.groomerId)}
-                disabled={submitting}
-                style={{ ...slotBtn, opacity: submitting ? 0.6 : 1 }}
+                onClick={() => chooseSlot(s, groomerId)}
+                disabled={!s.iso}
+                style={{ ...slotBtn, opacity: s.iso ? 1 : 0.6 }}
                 title={s.groomerName ? `With ${s.groomerName}` : undefined}
               >
                 {displayTime(s)}
@@ -593,6 +672,68 @@ function displayTime(slot: Slot) {
             Times shown are in your local timezone.
           </div>
         </>
+      )}
+
+      {/* Checkout step */}
+      {checkoutSlot && (
+        <div style={{ marginTop: 16, maxWidth: 640 }}>
+          {checkoutLoading && (
+            <div style={{ color: "#666" }}>Preparing secure payment…</div>
+          )}
+
+          {checkoutError && (
+            <div style={{ color: "#b33636", marginBottom: 8 }}>
+              {checkoutError}
+            </div>
+          )}
+
+          {checkout && selectedService && (
+            <>
+              <CheckoutStep
+                bookingId={checkout.bookingId}
+                clientSecret={checkout.clientSecret}
+                amountDueCents={checkout.amountDueCents}
+                serviceName={selectedService.name}
+                durationMin={selectedService.durationMin}
+                groomerName={selectedGroomerLabel}
+                dateLabel={new Date(checkout.slotIso).toLocaleDateString([], {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+                timeLabel={new Date(checkout.slotIso).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+                onDone={(_status) => {
+                  window.location.href = "/dashboard/my-bookings";
+                }}
+              />
+
+              <div style={{ marginTop: 8 }}>
+                <button
+                  type='button'
+                  onClick={() => {
+                    // Back to times
+                    setCheckout(null);
+                    setCheckoutSlot(null);
+                    setCheckoutError("");
+                    setCheckoutLoading(false);
+                  }}
+                  style={outlineBtn}
+                >
+                  Back
+                </button>
+              </div>
+            </>
+          )}
+
+          {!checkoutLoading && !checkout && !checkoutError && (
+            <div style={{ color: "#666" }}>
+              Unable to initialize checkout for this time.
+            </div>
+          )}
+        </div>
       )}
     </LayoutWrapper>
   );
