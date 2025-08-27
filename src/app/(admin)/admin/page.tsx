@@ -8,6 +8,7 @@ import AdminPageIntro from "@/components/admin/AdminPageIntro/AdminPageIntro";
 import AdminKpiCard from "@/components/admin/AdminKpiCard/AdminKpiCard";
 import Button from "@/components/shared/Button/Button";
 import { startOfDay, endOfDay, startOfMonth, addDays } from "date-fns";
+import AdminMonthlyCalendar from "@/components/admin/AdminMonthlyCalendar/AdminMonthlyCalendar";
 
 export default async function AdminPage() {
   // 1) Enforce ADMIN only
@@ -156,7 +157,7 @@ export default async function AdminPage() {
   [...groomersNeedingAttention, ...needsHours].forEach((g) =>
     mapById.set(g.id, g)
   );
-  const attentionList = Array.from(mapById.values()).slice(0, 10);
+  // const attentionList = Array.from(mapById.values()).slice(0, 10);
 
   return (
     <div className={styles.container}>
@@ -498,8 +499,8 @@ export default async function AdminPage() {
           </>
         )}
 
-        <h2 className={styles.heading}>Attention Needed</h2>
-        <div style={{ overflowX: "auto", marginBottom: 24 }}>
+        {/* <h2 className={styles.heading}>Attention Needed</h2> */}
+        {/* <div style={{ overflowX: "auto", marginBottom: 24 }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
@@ -562,6 +563,11 @@ export default async function AdminPage() {
               )}
             </tbody>
           </table>
+        </div> */}
+
+        <h2 className={styles.heading}>Calendar</h2>
+        <div style={{ marginBottom: 24 }}>
+          <AdminMonthlyCalendar />
         </div>
 
         <h2 className={styles.heading}>Quick Links</h2>
