@@ -1,114 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-
-// Keep styling consistent with your admin UI
-const wrap: React.CSSProperties = {
-  border: "1px solid #e5e5e5",
-  borderRadius: 8,
-  background: "white",
-};
-const header: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 8,
-  padding: 12,
-  borderBottom: "1px solid #eee",
-};
-const grid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(7, 1fr)",
-  gap: 0,
-};
-const dowCell: React.CSSProperties = {
-  fontSize: 12,
-  color: "#666",
-  padding: 8,
-  borderBottom: "1px solid #f3f3f3",
-  background: "#fafafa",
-};
-const dayCell: React.CSSProperties = {
-  borderRight: "1px solid #f5f5f5",
-  borderBottom: "1px solid #f5f5f5",
-  minHeight: 120,
-  padding: 8,
-  display: "flex",
-  flexDirection: "column",
-  gap: 6,
-};
-const dayNum: React.CSSProperties = {
-  marginLeft: "auto",
-  fontSize: 12,
-  color: "#666",
-};
-const controls: React.CSSProperties = {
-  display: "flex",
-  gap: 8,
-  flexWrap: "wrap",
-};
-const btn: React.CSSProperties = {
-  padding: "6px 10px",
-  borderRadius: 6,
-  background: "white",
-  color: "#333",
-  border: "1px solid #ddd",
-  cursor: "pointer",
-  textDecoration: "none",
-};
-const primaryBtn: React.CSSProperties = {
-  ...btn,
-  background: "#111",
-  color: "white",
-  borderColor: "#111",
-};
-// const legendWrap: React.CSSProperties = {
-//   padding: 8,
-//   borderTop: "1px solid #eee",
-//   display: "flex",
-//   gap: 12,
-//   flexWrap: "wrap",
-//   alignItems: "center",
-//   fontSize: 12,
-//   color: "#666",
-// };
-// const pillBase: React.CSSProperties = {
-//   display: "inline-block",
-//   padding: "2px 6px",
-//   borderRadius: 999,
-//   color: "white",
-//   fontSize: 11,
-//   textDecoration: "none",
-//   lineHeight: 1.4,
-// };
-
-const countChip: React.CSSProperties = {
-  display: "inline-block",
-  padding: "6px 10px",
-  borderRadius: 999,
-  background: "green",
-  color: "#ffffff",
-  border: "1px solid #111",
-  textDecoration: "none",
-  fontSize: 12,
-  fontWeight: 600,
-};
-
-// status → color (match your StatusBadge palette)
-// function statusColor(status: string) {
-//   if (status === "CONFIRMED") return "#0a7";
-//   if (status === "PENDING") return "#d88a00";
-//   if (status === "COMPLETED") return "#0366d6";
-//   if (status === "CANCELED") return "#999";
-//   return "#b33636"; // NO_SHOW / else
-// }
+import Modal from "@/components/shared/Modal/Modal";
+import styles from "./AdminMonthlyCalendar.module.css";
 
 const TZ = process.env.NEXT_PUBLIC_SALON_TZ ?? "America/Phoenix";
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 type ApiBooking = {
   id: string;
-  start: string; // ISO
+  start: string;
   end: string | null;
   status: string;
   serviceName: string | null;
@@ -128,8 +44,8 @@ function endOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
 }
 function startOfWeek(d: Date) {
-  const day = d.getDay(); // 0 Sun .. 6 Sat
-  const diff = day === 0 ? 0 : day; // weeks start Sunday to match your tables
+  const day = d.getDay();
+  const diff = day === 0 ? 0 : day;
   const res = new Date(d);
   res.setDate(d.getDate() - diff);
   res.setHours(0, 0, 0, 0);
@@ -140,25 +56,17 @@ function addDays(date: Date, n: number) {
   copy.setDate(copy.getDate() + n);
   return copy;
 }
-// function fmtHM(date: Date, locale = "en-US") {
-//   return new Intl.DateTimeFormat(locale, {
-//     timeZone: TZ,
-//     hour: "2-digit",
-//     minute: "2-digit",
-//   }).format(date);
-// }
 function ymd(date: Date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
-
 function adminDayHref(date: Date) {
-  const d = ymd(date); // YYYY-MM-DD
+  const d = ymd(date);
   const qs = new URLSearchParams({
     q: "",
-    status: "", // keep blank to show all; or pass your default
+    status: "",
     groomerId: "",
     serviceId: "",
     from: d,
@@ -170,6 +78,13 @@ function adminDayHref(date: Date) {
   });
   return `/admin/bookings?${qs.toString()}`;
 }
+function fmtTime(date: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
 
 export default function AdminMonthlyCalendar() {
   const [monthDate, setMonthDate] = useState(() => startOfMonth(new Date()));
@@ -178,12 +93,17 @@ export default function AdminMonthlyCalendar() {
   const [bookings, setBookings] = useState<ApiBooking[]>([]);
   const [filters, setFilters] = useState<Filters>({
     includeCanceled: false,
-    statuses: new Set(["PENDING", "CONFIRMED", "COMPLETED"]), // default visible
+    statuses: new Set(["PENDING", "CONFIRMED", "COMPLETED"]),
   });
 
-  const monthKey = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, "0")}`;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalDate, setModalDate] = useState<Date | null>(null);
+  const [modalItems, setModalItems] = useState<ApiBooking[]>([]);
 
-  // fetch month
+  const monthKey = `${monthDate.getFullYear()}-${String(
+    monthDate.getMonth() + 1
+  ).padStart(2, "0")}`;
+
   useEffect(() => {
     let alive = true;
     setLoading(true);
@@ -203,22 +123,16 @@ export default function AdminMonthlyCalendar() {
     };
   }, [monthKey]);
 
-  // group by day
   const days = useMemo(() => {
-    // Build a 6x7 grid (Sun..Sat) covering the visible calendar
     const first = startOfMonth(monthDate);
     const last = endOfMonth(monthDate);
     const gridStart = startOfWeek(first);
     const grid: Date[] = [];
     for (let i = 0; i < 42; i++) grid.push(addDays(gridStart, i));
-
-    // Filter bookings by status
     const filtered = bookings.filter((b) => {
       if (filters.includeCanceled) return true;
       return filters.statuses.has(b.status);
     });
-
-    // Map date → list
     const map = new Map<string, ApiBooking[]>();
     for (const b of filtered) {
       const d = new Date(b.start);
@@ -226,7 +140,6 @@ export default function AdminMonthlyCalendar() {
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(b);
     }
-
     return { grid, first, last, map };
   }, [monthDate, bookings, filters]);
 
@@ -240,10 +153,29 @@ export default function AdminMonthlyCalendar() {
     setMonthDate(startOfMonth(new Date()));
   }
   function onPickMonth(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.value; // "YYYY-MM"
+    const val = e.target.value;
     if (!val) return;
     const [y, m] = val.split("-").map(Number);
     setMonthDate(new Date(y, m - 1, 1));
+  }
+
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
+  function onTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+    touchStartX.current = e.changedTouches[0].clientX;
+  }
+  function onTouchMove(e: React.TouchEvent<HTMLDivElement>) {
+    touchEndX.current = e.changedTouches[0].clientX;
+  }
+  function onTouchEnd() {
+    if (touchStartX.current == null || touchEndX.current == null) return;
+    const delta = touchEndX.current - touchStartX.current;
+    const threshold = 40;
+    if (delta <= -threshold) goNext();
+    if (delta >= threshold) goPrev();
+    touchStartX.current = null;
+    touchEndX.current = null;
   }
 
   const monthLabel = new Intl.DateTimeFormat("en-US", {
@@ -252,47 +184,50 @@ export default function AdminMonthlyCalendar() {
     year: "numeric",
   }).format(monthDate);
 
+  function openModalForDay(date: Date, items: ApiBooking[]) {
+    setModalDate(date);
+    setModalItems(items);
+    setIsModalOpen(true);
+  }
+
+  const todayYMD = ymd(new Date());
+
   return (
-    <div style={wrap}>
-      {/* Header / controls */}
-      <div style={header}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            flexWrap: "wrap",
-          }}
-        >
-          <button type='button' style={btn} onClick={goPrev}>
+    <div
+      className={styles.wrap}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      <div className={styles.header}>
+        <div className={styles.headerLeft}>
+          <button type='button' className={styles.btn} onClick={goPrev}>
             ← Prev
           </button>
-          <button type='button' style={primaryBtn} onClick={goToday}>
+          <button
+            type='button'
+            className={`${styles.btn} ${styles.primary}`}
+            onClick={goToday}
+          >
             Today
           </button>
-          <button type='button' style={btn} onClick={goNext}>
+          <button type='button' className={styles.btn} onClick={goNext}>
             Next →
           </button>
-          <div style={{ fontWeight: 600 }}>{monthLabel}</div>
+          <div className={styles.monthLabel}>{monthLabel}</div>
         </div>
 
-        <div style={controls}>
+        <div className={styles.controls}>
           <input
             type='month'
-            value={`${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, "0")}`}
+            value={`${monthDate.getFullYear()}-${String(
+              monthDate.getMonth() + 1
+            ).padStart(2, "0")}`}
             onChange={onPickMonth}
-            style={{ ...btn, cursor: "pointer" }}
+            className={`${styles.btn} ${styles.monthPicker}`}
             aria-label='Jump to month'
           />
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontSize: 13,
-              color: "#333",
-            }}
-          >
+          <label className={styles.checkboxLabel}>
             <input
               type='checkbox'
               checked={filters.includeCanceled}
@@ -305,72 +240,139 @@ export default function AdminMonthlyCalendar() {
         </div>
       </div>
 
-      {/* Days of week */}
-      <div style={grid}>
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div key={d} style={dowCell}>
-            {d}
+      <div className={styles.viewport}>
+        <div className={styles.inner}>
+          <div className={styles.gridHead}>
+            {WEEKDAYS.map((d) => (
+              <div key={d} className={styles.dowCell}>
+                {d}
+              </div>
+            ))}
           </div>
-        ))}
+
+          {loading ? (
+            <div className={styles.loading}>Loading…</div>
+          ) : error ? (
+            <div className={styles.error}>{error}</div>
+          ) : (
+            <div className={styles.gridDays}>
+              {days.grid.map((d) => {
+                const key = ymd(d);
+                const list = days.map.get(key) ?? [];
+                const isOtherMonth = d.getMonth() !== monthDate.getMonth();
+                const isToday = key === todayYMD;
+                const isPast = key < todayYMD;
+                const label = `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
+
+                return (
+                  <div
+                    key={key}
+                    className={`${styles.dayCell} ${
+                      isOtherMonth ? styles.dayCellOther : ""
+                    } ${isToday ? styles.today : ""} ${
+                      isPast ? styles.pastDay : ""
+                    }`}
+                  >
+                    <div className={styles.dayTop}>
+                      <span className={styles.dayLabel}>{label}</span>
+                      <span className={styles.dayNumDesk}>{d.getDate()}</span>
+                    </div>
+
+                    {list.length === 0 ? (
+                      <div className={styles.empty}>—</div>
+                    ) : (
+                      <>
+                        <div className={styles.chipRow}>
+                          <Link
+                            href={adminDayHref(d)}
+                            className={styles.countChip}
+                            title={`View ${list.length} appointment${
+                              list.length === 1 ? "" : "s"
+                            } on ${d.toDateString()}`}
+                          >
+                            {list.length} appointment
+                            {list.length === 1 ? "" : "s"}
+                          </Link>
+                          <button
+                            type='button'
+                            className={styles.countChipMobile}
+                            onClick={() => openModalForDay(d, list)}
+                          >
+                            {list.length} appointment
+                            {list.length === 1 ? "" : "s"}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Calendar grid */}
-      {loading ? (
-        <div style={{ padding: 16, color: "#666" }}>Loading…</div>
-      ) : error ? (
-        <div style={{ padding: 16, color: "#b33636" }}>{error}</div>
-      ) : (
-        <div style={grid}>
-          {days.grid.map((d) => {
-            const key = ymd(d);
-            const isOtherMonth = d.getMonth() !== monthDate.getMonth();
-            const list = days.map.get(key) ?? [];
-
-            return (
-              <div
-                key={key}
-                style={{
-                  ...dayCell,
-                  background: isOtherMonth ? "#fcfcfc" : "white",
-                  opacity: isOtherMonth ? 0.8 : 1,
-                }}
-              >
-                <div style={dayNum}>{d.getDate()}</div>
-
-                {list.length === 0 ? (
-                  <div style={{ flex: 1, color: "#aaa", fontSize: 12 }}>—</div>
-                ) : (
-                  <div>
-                    <Link
-                      href={adminDayHref(d)}
-                      style={countChip}
-                      title={`View ${list.length} appointment${list.length === 1 ? "" : "s"} on ${d.toDateString()}`}
-                    >
-                      {list.length} appointment{list.length === 1 ? "" : "s"}
-                    </Link>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Legend */}
-      {/* <div style={legendWrap}>
-        <span>Legend:</span>
-        {["PENDING", "CONFIRMED", "COMPLETED", "CANCELED", "NO_SHOW"].map(
-          (s) => (
-            <span
-              key={s}
-              style={{ ...pillBase, background: statusColor(s) }}
-              title={s.replace("_", " ")}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <div className={styles.modalTitle}>
+              {modalDate
+                ? `${WEEKDAYS[modalDate.getDay()]}, ${
+                    MONTHS[modalDate.getMonth()]
+                  } ${modalDate.getDate()}`
+                : ""}
+            </div>
+          </div>
+          <div className={styles.modalBody}>
+            {modalItems.length === 0 ? (
+              <div className={styles.modalEmpty}>No appointments</div>
+            ) : (
+              <ul className={styles.eventList}>
+                {modalItems.map((b) => {
+                  const t = new Date(b.start);
+                  return (
+                    <li key={b.id} className={styles.eventItem}>
+                      <div className={styles.eventTime}>{fmtTime(t)}</div>
+                      <div className={styles.eventMain}>
+                        <div className={styles.eventTitle}>
+                          {b.serviceName ?? "Service"}
+                        </div>
+                        <div className={styles.eventMeta}>
+                          {b.userName ?? "—"} · {b.groomerName ?? "—"}
+                        </div>
+                      </div>
+                      <span
+                        className={`${styles.badge} ${
+                          b.status === "CONFIRMED"
+                            ? styles.badge_confirmed
+                            : b.status === "PENDING"
+                              ? styles.badge_pending
+                              : b.status === "COMPLETED"
+                                ? styles.badge_completed
+                                : b.status === "CANCELED"
+                                  ? styles.badge_canceled
+                                  : styles.badge_noshow
+                        }`}
+                      >
+                        {b.status.replace("_", " ")}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          <div className={styles.modalFooter}>
+            <button
+              type='button'
+              className={`${styles.btn} ${styles.primary}`}
+              onClick={() => setIsModalOpen(false)}
             >
-              {s.replace("_", " ")}
-            </span>
-          )
-        )}
-      </div> */}
+              Close
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

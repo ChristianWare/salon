@@ -1,0 +1,359 @@
+.wrap {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  flex-wrap: wrap;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.monthLabel {
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #333;
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  text-decoration: none;
+  appearance: none;
+  line-height: 1;
+}
+
+.btn:hover {
+  background: #f7f7f7;
+}
+
+.primary {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.primary:hover {
+  background: #000;
+}
+
+.monthPicker {
+  cursor: pointer;
+}
+
+.viewport {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* .inner {
+  min-width: 840px;
+} */
+
+.gridHead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  padding: 8px 8px 0 8px;
+  background: #fff;
+}
+
+.dowCell {
+  /* font-size: 12px; */
+  color: var(--white);
+  padding: 8px;
+  border-bottom: 1px solid #f3f3f3;
+  background: var(--lightBlue);
+  text-align: center;
+  border-radius: 6px 6px 0 0;
+}
+
+.gridDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  padding: 8px;
+}
+
+.dayCell {
+  position: relative;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  background: #fff;
+  min-height: 120px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dayCellOther {
+  background: #fafafa;
+  color: #666;
+}
+
+.today {
+  background: #eaf8ee;
+  border-color: #bfe8cc;
+  outline: 2px solid #4e94ec33;
+  outline-offset: 0;
+}
+
+/* .pastDay {
+  background-image: linear-gradient(
+    to bottom left,
+    transparent calc(50% - 1.5px),
+    rgba(220, 0, 0, 0.6) calc(50% - 1px),
+    rgba(220, 0, 0, 0.6) calc(50% + 1px),
+    transparent calc(50% + 1.5px)
+  );
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+} */
+
+.dayTop {
+  display: flex;
+  align-items: center;
+}
+
+.dayLabel {
+  font-size: 13px;
+  color: #333;
+  font-weight: 600;
+  display: none;
+}
+
+.dayNumDesk {
+  margin-left: auto;
+  font-size: 14px;
+  color: #333;
+  font-weight: 700;
+}
+
+.empty {
+  flex: 1;
+  color: #aaa;
+  font-size: 12px;
+}
+
+.chipRow {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.countChip {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: green;
+  color: #fff;
+  border: 1px solid #111;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  touch-action: manipulation;
+}
+
+.countChip:active {
+  transform: translateY(1px);
+}
+
+.countChipMobile {
+  display: none;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  border: 1px solid #111;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.loading {
+  padding: 16px;
+  color: #666;
+}
+
+.error {
+  padding: 16px;
+  color: #b33636;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.modalBody {
+  display: block;
+}
+
+.modalEmpty {
+  color: #777;
+  font-size: 14px;
+}
+
+.eventList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.eventItem {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.eventTime {
+  font-weight: 700;
+  font-size: 14px;
+  color: #333;
+}
+
+.eventMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eventTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+}
+
+.eventMeta {
+  font-size: 12px;
+  color: #666;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.badge_confirmed {
+  background: #0a7;
+}
+.badge_pending {
+  background: #d88a00;
+}
+.badge_completed {
+  background: #0366d6;
+}
+.badge_canceled {
+  background: #999;
+}
+.badge_noshow {
+  background: #b33636;
+}
+
+@media screen and (max-width: 1068px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dayCell {
+    min-height: 100px;
+    padding: 10px;
+  }
+}
+
+
+@media screen and (max-width: 768px) {
+  .inner {
+    min-width: 100%;
+  }
+  .gridHead {
+    display: none;
+  }
+  .gridDays {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .dayCell {
+    /* min-height: 100px; */
+    padding: 14px;
+  }
+  .dayLabel {
+    display: inline;
+  }
+  .dayNumDesk {
+    display: none;
+  }
+  .countChip {
+    display: none;
+  }
+  .countChipMobile {
+    display: inline-block;
+  }
+  .btn {
+    padding: 10px 14px;
+  }
+  .monthLabel {
+    font-size: 14px;
+  }
+}

@@ -33,7 +33,7 @@ export default function AdminSideNav() {
   };
 
   const { data: session } = useSession();
-  const isAdmin = session?.user?.role === "ADMIN";
+  // const isAdmin = session?.user?.role === "ADMIN";
   const isGroomer = !!session?.user?.isGroomer;
 
   return (
