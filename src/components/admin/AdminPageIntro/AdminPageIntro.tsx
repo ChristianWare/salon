@@ -8,7 +8,7 @@ export default async function AdminPageIntro() {
     <section className={styles.container}>
       <div className={styles.content}>
         <h1 className={styles.heading}>
-          {session?.user?.name}&lsquo;s <br />
+          {/* {session?.user?.name}&lsquo;s <br /> */}
           Admin Dashboard
         </h1>{" "}
         <p className={styles.copy}>
