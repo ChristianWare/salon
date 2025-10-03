@@ -120,12 +120,12 @@
   z-index: 1500;
 }
 
-@media screen and (max-width: 1068px) {
+/* @media screen and (max-width: 1068px) {
   .linksWrapper {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
   }
-}
+} */
 
 @media screen and (max-width: 568px) {
   .nav {

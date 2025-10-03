@@ -47,8 +47,8 @@
 
 @media screen and (max-width: 1268px) {
   .content {
-    grid-template-columns: 1fr;
-    grid-gap: 5rem;
+    grid-template-columns: 2fr 4fr;
+    grid-gap: 2rem;
   }
 
   .heading,
@@ -65,7 +65,12 @@
   }
 }
 
-@media screen and (max-width: 568px) {
+@media screen and (max-width: 668px) {
+  .content {
+    grid-template-columns: 1fr;
+    grid-gap: 2rem;
+  }
+
   .copy {
     width: 100%;
   }

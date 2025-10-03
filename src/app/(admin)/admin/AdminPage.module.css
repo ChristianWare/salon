@@ -12,15 +12,21 @@
 .kpiCards,
 .quickLinks {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   grid-gap: 1rem;
   margin-top: 2rem;
   margin-bottom: 5rem;
 }
 
-.mt12 { margin-top: 12px; }
-.mb24 { margin-bottom: 24px; }
-.center { text-align: center; }
+.mt12 {
+  margin-top: 12px;
+}
+.mb24 {
+  margin-bottom: 24px;
+}
+.center {
+  text-align: center;
+}
 
 /* ===== Desktop-first table ===== */
 .tableScroll {
@@ -35,7 +41,7 @@
   border-radius: 10px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
 }
 
 .table {
@@ -105,19 +111,37 @@
   color: #fff;
   font-size: 12px;
   line-height: 1.5;
+  width: fit-content;
 }
-.badge_confirmed { background: #0a7; }
-.badge_pending   { background: #d88a00; }
-.badge_completed { background: #0366d6; }
-.badge_canceled  { background: #999; }
-.badge_noshow    { background: #b33636; }
+.badge_confirmed {
+  background: #0a7;
+}
+.badge_pending {
+  background: #d88a00;
+}
+.badge_completed {
+  background: #0366d6;
+}
+.badge_canceled {
+  background: #999;
+}
+.badge_noshow {
+  background: #b33636;
+}
 
 .btnContainer {
   display: grid;
   width: 100%;
 }
 
-@media screen and (max-width: 1068px) {
+@media screen and (max-width: 1268px) {
+  .kpiCards,
+  .quickLinks {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 1268px) {
   .tableScroll {
     overflow: visible;
     /* margin-left: -8px; */

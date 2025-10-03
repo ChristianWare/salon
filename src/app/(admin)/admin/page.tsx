@@ -120,13 +120,13 @@ export default async function AdminPage() {
           />
           <AdminKpiCard label='Total Bookings' value={totalBookings} />
           <AdminKpiCard label='Registered Users' value={totalUsers} />
-        </div>
-
-        <div className={`${styles.kpiCards} ${styles.mt12}`}>
           <AdminKpiCard label='Pending Bookings' value={pendingBookings} />
           <AdminKpiCard label='Active Groomers' value={activeGroomers} />
           <AdminKpiCard label='Active Services' value={activeServices} />
         </div>
+
+        {/* <div className={`${styles.kpiCards} ${styles.mt12}`}>
+        </div> */}
 
         <h2 className={styles.heading}>New Bookings (Created Today)</h2>
         <div className={styles.tableScroll}>
